@@ -1,0 +1,7 @@
+{
+  "name": "twittonic",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

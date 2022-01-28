@@ -1,0 +1,6 @@
+{
+	"appId": "io.ionic.starter",
+	"appName": "twittonic",
+	"webDir": "www",
+	"bundledWebRuntime": false
+}
