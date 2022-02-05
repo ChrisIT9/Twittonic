@@ -1,5 +1,12 @@
 <div class="container-fluid text-center white">
-    <h1 *ngIf="error">Autenticazione fallita, per favore riprova. <br> <i>{{ error }}</i> </h1>
-    <h1 *ngIf="!error">Autenticazione avvenuta con successo, adesso puoi chiudere questa finestra!</h1>
+    <h1 *ngIf="error">
+        <i>{{ error }}</i> <br> 
+        Autenticazione fallita, per favore riprova.
+    </h1>
+    <h1 *ngIf="!error">
+        Autenticazione avvenuta con successo, reindirizzo... 
+        <br> Se il reindirizzamento non funziona, premi il pulsante qui sotto
+    </h1>
+    <ion-button routerLink="/home">Torna alla home</ion-button>
 </div>
 

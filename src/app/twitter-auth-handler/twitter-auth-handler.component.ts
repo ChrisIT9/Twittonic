@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { EventsBroadcasterService } from '../services/events-broadcaster.service';
 import { IndexedDBService } from '../services/indexed-db.service';
@@ -17,13 +17,19 @@ export class TwitterAuthHandlerComponent implements OnInit {
 
   constructor(private activatedRoute: ActivatedRoute, 
     private twitterService: TwitterService,
-    private indexedDB: IndexedDBService, private eventsBroadcaster: EventsBroadcasterService) {
+    private indexedDB: IndexedDBService, private eventsBroadcaster: EventsBroadcasterService,
+    private router: Router) {
     this.code = this.activatedRoute.snapshot.queryParams['code'];
     this.state = this.activatedRoute.snapshot.queryParams['state'];
     this.error = this.activatedRoute.snapshot.queryParams['error'];
   }
 
   async ngOnInit() {
+    if (this.error) {
+      await this.indexedDB.deleteFile({ path: `${environment.tempStoragePath}/state` });
+      await this.indexedDB.deleteFile({ path: `${environment.tempStoragePath}/challenge` });
+      return;
+    } 
     this.getTokens();
   }
 
@@ -32,19 +38,16 @@ export class TwitterAuthHandlerComponent implements OnInit {
       const originalState = (await this.indexedDB.popFile({ path: `${environment.tempStoragePath}/state` })).data;
       if (this.state === originalState) {
         (await this.twitterService.getTokens(this.code)).subscribe(async res => {
-          await this.indexedDB.writeFile({ path: "twittonic/accessToken", data: res.access_token });
-          await this.indexedDB.writeFile({ path: "twittonic/refreshToken", data: res.refresh_token });
-          await this.indexedDB.writeFile({ path: "twittonic/expiresIn", data: String(res.expires_in) });
-          await this.indexedDB.writeFile({ path: "twittonic/createdAt", data: String(Math.round(Date.now() / 1000)) });
-          this.twitterService.getTimeline(res.access_token).subscribe(res => console.log(res));
+          await this.twitterService.saveTokens(res);
+          this.router.navigateByUrl("/home");
         })
       } else {
+        await this.indexedDB.deleteFile({ path: `${environment.tempStoragePath}/state` });
+        await this.indexedDB.deleteFile({ path: `${environment.tempStoragePath}/challenge` });
         this.error = "Il parametro state non corrisponde!";
         return;
       }
     }
   }
-
-  
 
 }

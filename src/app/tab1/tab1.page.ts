@@ -1,21 +1,27 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { nanoid } from 'nanoid/async';
 import { environment } from 'src/environments/environment';
 import { EventsBroadcasterService } from '../services/events-broadcaster.service';
 import { IndexedDBService } from '../services/indexed-db.service';
 import { TwitterService } from '../services/twitter.service';
+import { User } from '../typings/TwitterUsers';
 
 @Component({
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
   styleUrls: ['tab1.page.scss']
 })
-export class Tab1Page {
+export class Tab1Page implements OnInit {
 
-  loggedIn: boolean = false;
+  userInfo: User | undefined;
+  loading = true;
 
   constructor(private indexedDB: IndexedDBService, private eventsBroadcaster: EventsBroadcasterService, private twitterService: TwitterService) {
     
+  }
+  
+  ngOnInit(): void {
+    this.getUserData();
   }
 
   async startAuth() {
@@ -33,15 +39,21 @@ export class Tab1Page {
     })
 
     const url = environment.twitterAuthUrl.replace(":CODE_CHALLENGE", challenge).replace(":STATE", state);
-    const oAuthWindow = window.open(url, "_blank", "modal");
+    window.open(url, "_self");
+  }
 
-    const interval = setInterval(async () => {
-      if (oAuthWindow.closed) {
-        
-        clearInterval(interval);
-      }
-    }, 500)
-
+  async getUserData() {
+    this.loading = true;
+    const accessToken = (await this.indexedDB.readFile({ path: "twittonic/accessToken" })).data;
+    if (!accessToken) {
+      this.loading = false;
+      return;
+    } 
+      
+    this.twitterService.getMe().subscribe(res => {
+      this.loading = false;
+      this.userInfo = res.data;
+    });
   }
 
 }

@@ -42,36 +42,45 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var axios_1 = __importDefault(require("axios"));
 var app_1 = require("../app");
-var stringifyBody_1 = require("../Utils/stringifyBody");
-var authRouter = express_1.default.Router();
-authRouter.post('/token', function (_a, res) {
-    var body = _a.body, _b = _a.headers, Authorization = _b.authorization, contentType = _b["content-type"];
+var usersRouter = express_1.default.Router();
+usersRouter.get('/me', function (_a, res) {
+    var Authorization = _a.headers.authorization, userFields = _a.query["user.fields"];
     return __awaiter(void 0, void 0, void 0, function () {
-        var stringifiedBody, response, error_1;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
+        var userData, error_1;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
-                    if (!Authorization || !contentType)
-                        return [2 /*return*/, res.status(400).json({ message: "Invalid headers." })];
-                    stringifiedBody = (0, stringifyBody_1.stringifyBody)(body);
-                    _c.label = 1;
+                    if (!Authorization)
+                        return [2 /*return*/, res.status(400).json({ message: "Token is missing!" })];
+                    _b.label = 1;
                 case 1:
-                    _c.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, axios_1.default.post(app_1.twitterEndpoint + "/oauth2/token", stringifiedBody, {
-                            headers: {
-                                "Content-Type": contentType,
-                                Authorization: Authorization
-                            }
+                    _b.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, axios_1.default.get(app_1.twitterEndpoint + "/users/me?user.fields=" + userFields, {
+                            headers: { Authorization: Authorization }
                         })];
                 case 2:
-                    response = _c.sent();
-                    return [2 /*return*/, res.status(200).json(response.data)];
+                    userData = (_b.sent()).data.data;
+                    return [2 /*return*/, res.status(200).json({ data: userData })];
                 case 3:
-                    error_1 = _c.sent();
-                    return [2 /*return*/, res.status(500).json({ message: "Something went wrong.", response: error_1 })];
+                    error_1 = _b.sent();
+                    return [2 /*return*/, res.status(400).json(error_1)];
                 case 4: return [2 /*return*/];
             }
         });
     });
 });
-exports.default = authRouter;
+usersRouter.get('/:id/following', function (_a, res) {
+    var Authorization = _a.headers.authorization, id = _a.params.id, userFields = _a.query["user.fields"];
+    return __awaiter(void 0, void 0, void 0, function () {
+        return __generator(this, function (_b) {
+            if (!Authorization)
+                return [2 /*return*/, res.status(400).json({ message: "Token is missing!" })];
+            try {
+            }
+            catch (error) {
+            }
+            return [2 /*return*/];
+        });
+    });
+});
+exports.default = usersRouter;

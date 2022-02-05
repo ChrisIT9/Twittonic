@@ -11,7 +11,6 @@ export const environment = {
   twitterClientId: "RmJoOGFLSm85TkdoZXpCWmlFN246MTpjaQ",
   twitterClientSecret: "ItnTSYLvQfg0mrxf24hP3AaC9kUWE7faNaDVSiFqSH8wrQuDlP",
   twitterScopes,
-  twitterEndpoint: 'https://api.twitter.com/2/oauth2',
   twitterAuthUrl: 'https://twitter.com/i/oauth2/authorize?response_type=code' +
                   `&client_id=${clientId}` +
                   `&redirect_uri=${redirectUri}` +

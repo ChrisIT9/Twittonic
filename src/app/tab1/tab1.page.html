@@ -13,14 +13,69 @@
     </ion-toolbar>
   </ion-header>
 
-  <div class="container-lg d-flex flex-column align-items-center justify-content-center h-100 text-center">
-    <div *ngIf="!loggedIn">
+  <div class="container-lg d-flex flex-column align-items-center justify-content-start h-100 text-center">
+    <div *ngIf="!userInfo">
       <h1>Per utilizzare quest'applicazione, devi accedere con il tuo account Twitter.</h1>
-      <ion-button color="tertiary fw-bold" (click)="startAuth()">
-        Accedi
-        <ion-icon name="log-in-outline"></ion-icon>
-      </ion-button>
+      <div class="text-center d-flex flex-column justify-content-center align-items-center flex-lg-row">
+        <ion-button color="tertiary fw-bold" (click)="startAuth()">
+          Accedi
+          <ion-icon name="log-in-outline"></ion-icon>
+        </ion-button>
+        <span class="m-1">oppure</span> 
+        <ion-button color="tertiary fw-bold" (click)="getUserData()">
+          Riprova
+          <ion-icon name="refresh-outline"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+    <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+    <div *ngIf="userInfo">
+      <h1 class="text-start my-3">Benvenuto, <b> {{ userInfo.name }} </b> </h1>
+      <ion-card href="https://www.twitter.com/{{userInfo.username}}" target="_blank">
+        <img class="img-fluid mt-3 br-100 profile-picture" [src]="userInfo.profile_image_url | getHqPicture">
+        <ion-card-header>
+          <ion-card-title>
+            <b>{{ userInfo.name }}</b>
+          </ion-card-title>
+
+          <ion-card-subtitle>
+            @{{ userInfo.username }}
+          </ion-card-subtitle>
+
+          <ion-card-subtitle>
+            <div class="d-inline-flex justify-content-center align-items-center p-2">
+              <ion-icon name="location" class="icon"></ion-icon>
+              {{ userInfo.location }}
+            </div>
+            <div class="d-inline-flex justify-content-center align-items-center p-2">
+              <ion-icon name="calendar" class="icon"></ion-icon>
+              Iscritto il {{ userInfo.created_at | formattedDate }}
+            </div>
+          </ion-card-subtitle>
+        </ion-card-header>
+      
+        <ion-card-content *ngIf="userInfo.description">
+          <div class="bio">
+            {{ userInfo.description }}
+          </div>
+        </ion-card-content>
+
+        <ion-card-content *ngIf="userInfo.public_metrics">
+          <div>
+            <b>{{ userInfo.public_metrics.followers_count }}</b> follower
+            •
+            <b>{{ userInfo.public_metrics.following_count }}</b> following
+          </div>
+        </ion-card-content>
+
+      </ion-card>
+      <ion-item class="br-4px mt-5">
+        <ion-label position="floating">Twitta qualcosa</ion-label>
+        <ion-textarea rows="3" placeholder="Che c'è di nuovo?" maxlength="280" minlength="1" autoGrow="true"></ion-textarea>
+        <ion-button class="tertiary fw-bold w-25 align-self-end mb-2"><ion-icon name="send"></ion-icon></ion-button>
+      </ion-item>
     </div>
   </div>
+    
   
 </ion-content>

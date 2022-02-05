@@ -45,4 +45,15 @@ export class IndexedDBService {
       return { path, success: false, error };
     }
   }
+
+  async deleteMultiple(...paths: string[]) {
+    const unresolvedPromises = paths.map(async path => Filesystem.deleteFile({ path }));
+
+    try {
+      await Promise.all(unresolvedPromises);
+      return { paths: [...paths], success: true };
+    } catch(error) {
+      return { paths: [...paths], success: false, error };
+    }
+  }
 }

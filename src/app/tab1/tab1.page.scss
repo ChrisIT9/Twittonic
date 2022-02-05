@@ -6,3 +6,23 @@
     text-align: center;
     height: 100%;
 }
+
+.icon {
+    margin-right: 5px;
+}
+
+.bio {
+    max-width: 300px;
+}
+
+.profile-picture {
+    width: 150px;
+    height: 150px;
+}
+
+ion-card { 
+    transition: 0.25s ease-in-out all;
+    &:hover {
+        transform: scale(1.02);
+    }
+}
