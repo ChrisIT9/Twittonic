@@ -5,7 +5,7 @@ Supported features:
 - [X] OAuth2 Authentication
 - [X] Automatic token refreshing (when possible)
 - [X] Basic tweeting capabilities
-- [ ] Logout and token revoking
+- [X] Logout and token revoking
 - [ ] Advanced tweeting capabilities
   - [ ] Deleting tweets
   - [ ] Retweeting

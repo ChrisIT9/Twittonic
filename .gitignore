@@ -31,5 +31,5 @@ npm-debug.log*
 /plugins
 /www
 
-twittonic_backend/build
-twittonic_backend/node_modules
+reverse_proxy/build
+reverse_proxy/node_modules

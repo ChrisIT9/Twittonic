@@ -21,7 +21,9 @@ export const environment = {
   tempStoragePath: "twittonic_temp",
   storagePath: 'twittonic',
   successRedirectUri: "http://127.0.0.1:8100/twitter/oauth",
-  backendEndpoint: "http://127.0.0.1:3001/2"
+  backendEndpoint: "http://127.0.0.1:3001/2",
+  twitterEndpoint: "https://api.twitter.com/2",
+  reverseProxyUrl: "http://localhost:8080"
 };
 
 /*

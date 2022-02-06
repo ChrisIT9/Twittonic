@@ -14,7 +14,7 @@
   </ion-header>
 
   <div class="container-lg d-flex flex-column align-items-center justify-content-center text-center">
-    <div *ngIf="!userInfo && !loading">
+    <div *ngIf="!userInfo && !loading" class="login-request">
       <h1>Per utilizzare quest'applicazione, devi accedere con il tuo account Twitter.</h1>
       <div class="text-center d-flex flex-column justify-content-center align-items-center flex-lg-row">
         <ion-button color="tertiary fw-bold" (click)="startAuth()">
@@ -22,7 +22,7 @@
           <ion-icon name="log-in-outline"></ion-icon>
         </ion-button>
         <span class="m-1">oppure</span> 
-        <ion-button color="tertiary fw-bold" (click)="getUserData()">
+        <ion-button color="tertiary fw-bold" (click)="getUserData($event)">
           Riprova
           <ion-icon name="refresh-outline"></ion-icon>
         </ion-button>
@@ -31,7 +31,8 @@
     <ion-spinner *ngIf="loading" name="crescent" class="my-3"></ion-spinner>
     <div *ngIf="userInfo">
       <h1 class="text-start my-3 text-break">Benvenuto, <b> {{ userInfo.name }} </b> </h1>
-      <ion-card href="https://www.twitter.com/{{userInfo.username}}" target="_blank">
+      <ion-card class="position-relative">
+        <ion-icon class="user-options" name="ellipsis-vertical" (click)="showSettings($event)"></ion-icon>
         <img class="img-fluid mt-3 br-100 profile-picture" [src]="userInfo.profile_image_url | getHqPicture">
         <ion-card-header>
           <ion-card-title class="d-flex justify-content-center align-items-center text-break">
@@ -89,33 +90,7 @@
       <h1 *ngIf="userInfo">I tuoi tweet</h1>
       <ion-spinner *ngIf="tweetsLoading" name="crescent"></ion-spinner>
       <div class="col-12" *ngFor="let tweet of ownTweets">
-        <ion-card href="https://www.twitter.com/{{tweet.username}}/status/{{tweet.id}}" target="_blank">
-          <ion-card-header class="text-start">
-            <ion-card-title class="d-flex justify-content-start align-items-center">
-              <img class="br-100 mx-2" [src]="tweet.profile_image_url">
-              <div>
-                <b class="text-break">{{ tweet.name }}</b>
-                <ion-card-subtitle class="w-100 my-1 text-break">
-                  @{{ tweet.username }}
-                </ion-card-subtitle>
-              </div>
-            </ion-card-title>
-            <ion-card-content class="px-2 py-3 tweet-content">
-              {{ tweet.text }}
-            </ion-card-content>
-            <ion-card-content class="px-2 d-flex justify-content-start align-items-center metrics">
-              <ion-icon name="chatbubble-outline"></ion-icon>
-              <b class="mx-2">{{ tweet.public_metrics.reply_count }}</b>
-              <ion-icon name="repeat-outline"></ion-icon>
-              <b class="mx-2">{{ tweet.public_metrics.retweet_count }}</b>
-              <ion-icon name="heart-outline"></ion-icon>
-              <b class="mx-2">{{ tweet.public_metrics.like_count }}</b>
-            </ion-card-content>
-            <ion-card-subtitle>
-              {{ tweet.created_at | dateToTimeElapsed }}
-            </ion-card-subtitle>
-          </ion-card-header>
-        </ion-card>
+        <app-tweet [tweet]="tweet"></app-tweet>
       </div>
     </div>
   </div>

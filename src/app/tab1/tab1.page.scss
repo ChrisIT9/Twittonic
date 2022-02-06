@@ -20,22 +20,20 @@
     height: 150px;
 }
 
-.tweet-box-container {
-    background-color: var(--ion-color-primary);
-    padding: 2px;
+.user-options {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 24px;
 }
 
-.metrics {
-    font-size: 18px;
+.login-request {
+    padding: 25vh 0;
 }
 
-.tweet-content {
-    font-size: 21px;
-}
-
-ion-card { 
+/* ion-card { 
     transition: 0.25s ease-in-out all;
     &:hover {
         transform: scale(1.02);
     }
-}
+} */

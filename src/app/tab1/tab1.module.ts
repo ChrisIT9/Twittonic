@@ -7,6 +7,7 @@ import { ExploreContainerComponentModule } from '../explore-container/explore-co
 
 import { Tab1PageRoutingModule } from './tab1-routing.module';
 import { CustomPipesModule } from '../modules/custom-pipes/custom-pipes.module';
+import { CustomComponentsModule } from '../modules/custom-components/custom-components.module';
 
 @NgModule({
   imports: [
@@ -15,7 +16,8 @@ import { CustomPipesModule } from '../modules/custom-pipes/custom-pipes.module';
     FormsModule,
     ExploreContainerComponentModule,
     Tab1PageRoutingModule,
-    CustomPipesModule
+    CustomPipesModule,
+    CustomComponentsModule
   ],
   declarations: [Tab1Page]
 })

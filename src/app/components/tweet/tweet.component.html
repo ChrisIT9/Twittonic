@@ -1,0 +1,30 @@
+<ion-card target="_blank">
+  <ion-card-header class="text-start">
+    <ion-card-title class="d-flex justify-content-between align-items-start">
+      <div class="d-flex justify-content-start align-items-center">
+        <img class="br-100 mx-2" [src]="tweet.profile_image_url">
+        <div>
+          <b class="text-break">{{ tweet.name }}</b>
+          <ion-card-subtitle class="w-100 my-1 text-break">
+            @{{ tweet.username }}
+          </ion-card-subtitle>
+        </div>
+      </div>
+      <a class="mx-1" href="https://www.twitter.com/{{tweet.username}}/status/{{tweet.id}}" target="_blank"><ion-icon name="open-outline"></ion-icon></a>
+    </ion-card-title>
+    <ion-card-content class="px-2 py-3 tweet-content">
+      {{ tweet.text }}
+    </ion-card-content>
+    <ion-card-content class="px-2 d-flex justify-content-start align-items-center metrics">
+      <ion-icon name="chatbubble-outline"></ion-icon>
+      <b class="mx-2">{{ tweet.public_metrics.reply_count }}</b>
+      <ion-icon name="repeat-outline"></ion-icon>
+      <b class="mx-2">{{ tweet.public_metrics.retweet_count }}</b>
+      <ion-icon name="heart-outline"></ion-icon>
+      <b class="mx-2">{{ tweet.public_metrics.like_count }}</b>
+    </ion-card-content>
+    <ion-card-subtitle>
+      {{ tweet.created_at | dateToTimeElapsed }}
+    </ion-card-subtitle>
+  </ion-card-header>
+</ion-card>

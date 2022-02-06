@@ -39,6 +39,7 @@ export class TwitterAuthHandlerComponent implements OnInit {
       if (this.state === originalState) {
         (await this.twitterService.getTokens(this.code)).subscribe(async res => {
           await this.twitterService.saveTokens(res);
+          this.eventsBroadcaster.newAuthEvent({ type: "login", success: true });
           this.router.navigateByUrl("/home");
         })
       } else {

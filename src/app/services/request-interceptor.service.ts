@@ -25,6 +25,8 @@ export class RequestInterceptorService implements HttpInterceptor {
     const expiresIn = Number((await this.indexedDB.readFile({ path: "twittonic/expiresIn" })).data);
     const currentTime = Math.round(Date.now() / 1000);
 
+    const lowerCaseUrl = req.url.toLowerCase();
+
     if (currentTime > createdAt + expiresIn) {
       console.warn("Tokens have expired, deleting...");
       await this.indexedDB.deleteMultiple("twittonic/accessToken", "twittonic/refreshToken", "twittonic/expiresIn", "twittonic/createdAt");
@@ -33,7 +35,7 @@ export class RequestInterceptorService implements HttpInterceptor {
     }
 
     if (
-      this.basicRoutes.some(item => req.url.toLowerCase().includes(item.toLowerCase()))
+      this.basicRoutes.some(item => lowerCaseUrl.includes(item.toLowerCase()))
       ) {
       const base64AuthString = btoa(`${environment.twitterClientId}:${environment.twitterClientSecret}`);
       const authReq = req.clone({
@@ -46,7 +48,7 @@ export class RequestInterceptorService implements HttpInterceptor {
     }
 
     if (
-      this.bearerRoutes.some(item => req.url.toLowerCase().includes(item.toLowerCase()) && createdAt)
+      this.bearerRoutes.some(item => lowerCaseUrl.includes(item.toLowerCase()) && createdAt)
       ) { // request to routes requiring bearer authorization
         if (currentTime - 600 > createdAt + expiresIn) { // Refresh tokens if they're about to expire
           console.log("Tokens are about to expire, refreshing...");
@@ -60,7 +62,7 @@ export class RequestInterceptorService implements HttpInterceptor {
 
         const authReq = req.clone({
           setHeaders: {
-            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Type": lowerCaseUrl.includes("/tweets") ? "application/json" : "application/x-www-form-urlencoded",
             Authorization: `Bearer ${accessToken}`
           }
         });

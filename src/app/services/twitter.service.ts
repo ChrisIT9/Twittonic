@@ -1,5 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { TweetsResponse } from '../typings/Tweets';
 import {  TwitterOAuthResponse } from '../typings/TwitterOAuthRequest';
@@ -24,7 +25,7 @@ export class TwitterService {
     .set("code_verifier", challenge)
     .set("grant_type", "authorization_code");
 
-    return this.httpClient.post<TwitterOAuthResponse>(`${environment.backendEndpoint}/oauth2/token`, body.toString());
+    return this.httpClient.post<TwitterOAuthResponse>(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/oauth2/token`, body.toString());
   }
 
   async refreshTokens() {
@@ -36,7 +37,7 @@ export class TwitterService {
     .set("grant_type", "refresh_token")
     .set("refresh_token", refreshToken);
 
-    return this.httpClient.post<TwitterOAuthResponse>(`${environment.backendEndpoint}/oauth2/token`, body.toString());
+    return this.httpClient.post<TwitterOAuthResponse>(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/oauth2/token`, body.toString());
   }
 
   async saveTokens({ access_token, refresh_token, expires_in }: TwitterOAuthResponse) {
@@ -48,14 +49,11 @@ export class TwitterService {
 
   getMe() {
     const userFields = "created_at,description,id,location,name,profile_image_url,protected,public_metrics,url,username,verified,withheld";
-    return this.httpClient.get<UserResponse>(`${environment.backendEndpoint}/users/me?user.fields=${userFields}`);
+    return this.httpClient.get<UserResponse>(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/me?user.fields=${userFields}`);
   }
 
   postTweet(tweet: { text: string }) {
-    const body = new HttpParams()
-    .set("text", tweet.text);
-
-    return this.httpClient.post(`${environment.backendEndpoint}/tweets`, body.toString());
+    return this.httpClient.post(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/tweets`, JSON.stringify(tweet));
   }
 
   getTweets(id: number | string) {
@@ -63,9 +61,26 @@ export class TwitterService {
     const mediaFields = "duration_ms,preview_image_url,type,url";
     const tweetFields = "attachments,author_id,conversation_id,created_at,id,in_reply_to_user_id,referenced_tweets,reply_settings,source,text,public_metrics";
     const userFields = "id,name,profile_image_url,username,verified";
-    const maxResults = 50;
+    const maxResults = 5;
     return this.httpClient.get<TweetsResponse>(
-      `${environment.backendEndpoint}/users/${id}/tweets?expansions=${expansions}&media.fields=${mediaFields}&tweet.fields=${tweetFields}&user.fields=${userFields}&max_results=${maxResults}`
+      `${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${id}/tweets?expansions=${expansions}&media.fields=${mediaFields}&tweet.fields=${tweetFields}&user.fields=${userFields}&max_results=${maxResults}`
       );
+  }
+
+  async revokeTokens() {
+    const accessToken = (await this.indexedDB.readFile({ path: "twittonic/accessToken" })).data;
+    const refreshToken = (await this.indexedDB.readFile({ path: "twittonic/refreshToken" })).data;
+    
+    return [{ token: accessToken, type: "access_token" }, { token: refreshToken, type: "refresh_token" }].
+    reduce((acc, { token, type }) => {
+      if (!token) return acc;
+
+      const body = new HttpParams()
+      .set("token", token)
+      .set("client_id", environment.twitterClientId)
+      .set("token_type_hint", type);
+
+      return [...acc, this.httpClient.post(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/oauth2/revoke`, body.toString())];
+    }, [] as Observable<Object>[])
   }
 }
