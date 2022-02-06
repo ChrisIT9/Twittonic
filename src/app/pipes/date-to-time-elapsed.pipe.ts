@@ -15,9 +15,9 @@ export class DateToTimeElapsedPipe implements PipeTransform {
 
     const differenceInSeconds = currentTime - time;
 
-    if (differenceInSeconds < 60) return `${differenceInSeconds} secondi fa`;
-    if (differenceInSeconds >= 60 && differenceInSeconds < 3600) return `${Math.floor(differenceInSeconds / 60)} minuti fa`;
-    if (differenceInSeconds >= 3600 && differenceInSeconds < 86400) return `${Math.floor(differenceInSeconds / 3600)} ore fa`;
+    if (differenceInSeconds < 60) return `${differenceInSeconds} ${differenceInSeconds === 1 ? "secondo" : "secondi"} fa`;
+    if (differenceInSeconds >= 60 && differenceInSeconds < 3600) return `${Math.floor(differenceInSeconds / 60)} ${differenceInSeconds >= 60 && differenceInSeconds < 120 ? "minuto" : "minuti"} fa`;
+    if (differenceInSeconds >= 3600 && differenceInSeconds < 86400) return `${Math.floor(differenceInSeconds / 3600)} ${differenceInSeconds >= 3600 && differenceInSeconds < 7200 ? "ora" : "ore"} fa`;
 
     const [ date ] = value.split("T");
     const [ year, month, day ] = date.split("-");

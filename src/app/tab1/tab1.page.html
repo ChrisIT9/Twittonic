@@ -78,11 +78,14 @@
           <ion-textarea class="w-100" [(ngModel)]="tweetContent" rows="4" placeholder="Che c'è di nuovo?" maxlength="280" minlength="1" autoGrow="true">
           </ion-textarea>
         </ion-item>
-        <ion-button class="tertiary fw-bold text-uppercase my-2" (click)="postTweet()">
-          <span *ngIf="!tweetSending" class="mx-2">Twitta</span>
-          <ion-icon *ngIf="!tweetSending" name="send"></ion-icon>
-          <ion-spinner *ngIf="tweetSending" name="lines"></ion-spinner>
-        </ion-button>
+        <div class="d-flex justify-content-center align-items-center">
+          <span *ngIf="tweetContent" class="mx-1">{{ tweetContent?.length }}/280</span>
+          <ion-button class="tertiary fw-bold text-uppercase my-2" (click)="postTweet()" [disabled]="!tweetContent">
+            <span *ngIf="!tweetSending" class="mx-2">Twitta</span>
+            <ion-icon *ngIf="!tweetSending" name="send"></ion-icon>
+            <ion-spinner *ngIf="tweetSending" name="lines"></ion-spinner>
+          </ion-button>
+        </div>
       </div>
     </div>
 
