@@ -43,61 +43,27 @@ var express_1 = __importDefault(require("express"));
 var axios_1 = __importDefault(require("axios"));
 var app_1 = require("../app");
 var auth_1 = require("../middlewares/auth");
-var usersRouter = express_1.default.Router();
-usersRouter.get('/me', auth_1.checkAuthHeaders, function (_a, res) {
-    var Authorization = _a.headers.authorization, userFields = _a.query["user.fields"];
+var tweetsRouter = express_1.default.Router();
+tweetsRouter.post("/", auth_1.checkAuthHeaders, function (_a, res) {
+    var Authorization = _a.headers.authorization, body = _a.body;
     return __awaiter(void 0, void 0, void 0, function () {
-        var userData, error_1;
+        var data, error_1;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     _b.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, axios_1.default.get(app_1.twitterEndpoint + "/users/me?user.fields=" + userFields, {
-                            headers: { Authorization: Authorization }
+                    return [4 /*yield*/, axios_1.default.post(app_1.twitterEndpoint + "/tweets", JSON.stringify(body), {
+                            headers: { Authorization: Authorization, "Content-Type": "application/json" },
                         })];
                 case 1:
-                    userData = (_b.sent()).data.data;
-                    return [2 /*return*/, res.status(200).json({ data: userData })];
-                case 2:
-                    error_1 = _b.sent();
-                    return [2 /*return*/, res.status(400).json(error_1)];
-                case 3: return [2 /*return*/];
-            }
-        });
-    });
-});
-usersRouter.get('/:id/following', auth_1.checkAuthHeaders, function (_a, res) {
-    var Authorization = _a.headers.authorization, id = _a.params.id, userFields = _a.query["user.fields"];
-    return __awaiter(void 0, void 0, void 0, function () {
-        return __generator(this, function (_b) {
-            try {
-            }
-            catch (error) {
-            }
-            return [2 /*return*/];
-        });
-    });
-});
-usersRouter.get("/:id/tweets", auth_1.checkAuthHeaders, function (_a, res) {
-    var Authorization = _a.headers.authorization, id = _a.params.id, _b = _a.query, tweetFields = _b["tweet.fields"], expansions = _b.expansions, mediaFields = _b["media.fields"], userFields = _b["user.fields"], maxResults = _b["max_results"];
-    return __awaiter(void 0, void 0, void 0, function () {
-        var data, error_2;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
-                case 0:
-                    _c.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, axios_1.default.get(app_1.twitterEndpoint + "/users/" + id + "/tweets?tweet.fields=" + tweetFields + "&expansions=" + expansions + "&media.fields=" + mediaFields + "&user.fields=" + userFields + "&max_results=" + maxResults, {
-                            headers: { Authorization: Authorization }
-                        })];
-                case 1:
-                    data = (_c.sent()).data;
+                    data = (_b.sent()).data;
                     return [2 /*return*/, res.status(200).json(data)];
                 case 2:
-                    error_2 = _c.sent();
-                    return [2 /*return*/, res.status(500).json(error_2)];
+                    error_1 = _b.sent();
+                    return [2 /*return*/, res.status(500).json(error_1)];
                 case 3: return [2 /*return*/];
             }
         });
     });
 });
-exports.default = usersRouter;
+exports.default = tweetsRouter;

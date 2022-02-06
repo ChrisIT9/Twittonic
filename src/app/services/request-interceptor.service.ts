@@ -10,7 +10,7 @@ import { TwitterService } from './twitter.service';
 })
 export class RequestInterceptorService implements HttpInterceptor {
 
-  bearerRoutes = ['/users'];
+  bearerRoutes = ['/users', '/tweets'];
   basicRoutes = ['/oauth2'];
 
   constructor(private indexedDB: IndexedDBService, private twitterService: TwitterService) { }
@@ -28,6 +28,7 @@ export class RequestInterceptorService implements HttpInterceptor {
     if (currentTime > createdAt + expiresIn) {
       console.warn("Tokens have expired, deleting...");
       await this.indexedDB.deleteMultiple("twittonic/accessToken", "twittonic/refreshToken", "twittonic/expiresIn", "twittonic/createdAt");
+      //await this.indexedDB.writeFile({ path: "twittonic/logs", data: `[${Date.now().toLocaleString()}] Deleted expired tokens.` });
       return EMPTY.toPromise();
     }
 
@@ -47,7 +48,7 @@ export class RequestInterceptorService implements HttpInterceptor {
     if (
       this.bearerRoutes.some(item => req.url.toLowerCase().includes(item.toLowerCase()) && createdAt)
       ) { // request to routes requiring bearer authorization
-        if (currentTime - 30 > createdAt + expiresIn) { // Refresh tokens if they're about to expire
+        if (currentTime - 600 > createdAt + expiresIn) { // Refresh tokens if they're about to expire
           console.log("Tokens are about to expire, refreshing...");
 
           (await this.twitterService.refreshTokens())
@@ -59,6 +60,7 @@ export class RequestInterceptorService implements HttpInterceptor {
 
         const authReq = req.clone({
           setHeaders: {
+            "Content-Type": "application/x-www-form-urlencoded",
             Authorization: `Bearer ${accessToken}`
           }
         });

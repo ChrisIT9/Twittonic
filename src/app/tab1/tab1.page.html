@@ -13,8 +13,8 @@
     </ion-toolbar>
   </ion-header>
 
-  <div class="container-lg d-flex flex-column align-items-center justify-content-start h-100 text-center">
-    <div *ngIf="!userInfo">
+  <div class="container-lg d-flex flex-column align-items-center justify-content-center text-center">
+    <div *ngIf="!userInfo && !loading">
       <h1>Per utilizzare quest'applicazione, devi accedere con il tuo account Twitter.</h1>
       <div class="text-center d-flex flex-column justify-content-center align-items-center flex-lg-row">
         <ion-button color="tertiary fw-bold" (click)="startAuth()">
@@ -28,54 +28,95 @@
         </ion-button>
       </div>
     </div>
-    <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+    <ion-spinner *ngIf="loading" name="crescent" class="my-3"></ion-spinner>
     <div *ngIf="userInfo">
-      <h1 class="text-start my-3">Benvenuto, <b> {{ userInfo.name }} </b> </h1>
+      <h1 class="text-start my-3 text-break">Benvenuto, <b> {{ userInfo.name }} </b> </h1>
       <ion-card href="https://www.twitter.com/{{userInfo.username}}" target="_blank">
         <img class="img-fluid mt-3 br-100 profile-picture" [src]="userInfo.profile_image_url | getHqPicture">
         <ion-card-header>
-          <ion-card-title>
-            <b>{{ userInfo.name }}</b>
+          <ion-card-title class="d-flex justify-content-center align-items-center text-break">
+            <b class="mx-1 my-1">{{ userInfo.name }}</b>
+            <ion-icon *ngIf="userInfo.verified" name="checkmark-circle"></ion-icon>
           </ion-card-title>
 
-          <ion-card-subtitle>
+          <ion-card-subtitle class="text-break">
             @{{ userInfo.username }}
           </ion-card-subtitle>
 
           <ion-card-subtitle>
-            <div class="d-inline-flex justify-content-center align-items-center p-2">
+            <div class="d-inline-flex justify-content-center align-items-center p-2 text-break">
               <ion-icon name="location" class="icon"></ion-icon>
               {{ userInfo.location }}
             </div>
-            <div class="d-inline-flex justify-content-center align-items-center p-2">
+            <div class="d-inline-flex justify-content-center align-items-center p-2 text-break">
               <ion-icon name="calendar" class="icon"></ion-icon>
               Iscritto il {{ userInfo.created_at | formattedDate }}
             </div>
           </ion-card-subtitle>
         </ion-card-header>
       
-        <ion-card-content *ngIf="userInfo.description">
-          <div class="bio">
+        <ion-card-content *ngIf="userInfo.description" class="d-flex justify-content-center align-items-center">
+          <div class="bio text-break">
             {{ userInfo.description }}
           </div>
         </ion-card-content>
 
-        <ion-card-content *ngIf="userInfo.public_metrics">
+        <ion-card-content *ngIf="userInfo.public_metrics" class="text-break">
           <div>
             <b>{{ userInfo.public_metrics.followers_count }}</b> follower
             •
             <b>{{ userInfo.public_metrics.following_count }}</b> following
+            •
+            <b>{{ userInfo.public_metrics.tweet_count }}</b> tweet
           </div>
         </ion-card-content>
-
       </ion-card>
-      <ion-item class="br-4px mt-5">
-        <ion-label position="floating">Twitta qualcosa</ion-label>
-        <ion-textarea rows="3" placeholder="Che c'è di nuovo?" maxlength="280" minlength="1" autoGrow="true"></ion-textarea>
-        <ion-button class="tertiary fw-bold w-25 align-self-end mb-2"><ion-icon name="send"></ion-icon></ion-button>
-      </ion-item>
+
+      <div class="d-flex flex-column justify-content-center align-items-end">
+        <ion-item class="br-4px mt-5 tweet-box-container w-100">
+          <ion-textarea class="w-100" [(ngModel)]="tweetContent" rows="4" placeholder="Che c'è di nuovo?" maxlength="280" minlength="1" autoGrow="true">
+          </ion-textarea>
+        </ion-item>
+        <ion-button class="tertiary fw-bold text-uppercase my-2" (click)="postTweet()">
+          <span *ngIf="!tweetSending" class="mx-2">Twitta</span>
+          <ion-icon *ngIf="!tweetSending" name="send"></ion-icon>
+          <ion-spinner *ngIf="tweetSending" name="lines"></ion-spinner>
+        </ion-button>
+      </div>
+    </div>
+
+    <div class="row w-lg-50 mt-3">
+      <h1 *ngIf="userInfo">I tuoi tweet</h1>
+      <ion-spinner *ngIf="tweetsLoading" name="crescent"></ion-spinner>
+      <div class="col-12" *ngFor="let tweet of ownTweets">
+        <ion-card href="https://www.twitter.com/{{tweet.username}}/status/{{tweet.id}}" target="_blank">
+          <ion-card-header class="text-start">
+            <ion-card-title class="d-flex justify-content-start align-items-center">
+              <img class="br-100 mx-2" [src]="tweet.profile_image_url">
+              <div>
+                <b class="text-break">{{ tweet.name }}</b>
+                <ion-card-subtitle class="w-100 my-1 text-break">
+                  @{{ tweet.username }}
+                </ion-card-subtitle>
+              </div>
+            </ion-card-title>
+            <ion-card-content class="px-2 py-3 tweet-content">
+              {{ tweet.text }}
+            </ion-card-content>
+            <ion-card-content class="px-2 d-flex justify-content-start align-items-center metrics">
+              <ion-icon name="chatbubble-outline"></ion-icon>
+              <b class="mx-2">{{ tweet.public_metrics.reply_count }}</b>
+              <ion-icon name="repeat-outline"></ion-icon>
+              <b class="mx-2">{{ tweet.public_metrics.retweet_count }}</b>
+              <ion-icon name="heart-outline"></ion-icon>
+              <b class="mx-2">{{ tweet.public_metrics.like_count }}</b>
+            </ion-card-content>
+            <ion-card-subtitle>
+              {{ tweet.created_at | dateToTimeElapsed }}
+            </ion-card-subtitle>
+          </ion-card-header>
+        </ion-card>
+      </div>
     </div>
   </div>
-    
-  
 </ion-content>

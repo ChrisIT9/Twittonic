@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import { TweetsResponse } from '../typings/Tweets';
 import {  TwitterOAuthResponse } from '../typings/TwitterOAuthRequest';
 import { UserResponse } from '../typings/TwitterUsers';
 import { IndexedDBService } from './indexed-db.service';
@@ -46,7 +47,25 @@ export class TwitterService {
   }
 
   getMe() {
-    const fields = "user.fields=created_at,description,id,location,name,profile_image_url,protected,public_metrics,url,username,verified,withheld";
-    return this.httpClient.get<UserResponse>(`${environment.backendEndpoint}/users/me?${fields}`);
+    const userFields = "created_at,description,id,location,name,profile_image_url,protected,public_metrics,url,username,verified,withheld";
+    return this.httpClient.get<UserResponse>(`${environment.backendEndpoint}/users/me?user.fields=${userFields}`);
+  }
+
+  postTweet(tweet: { text: string }) {
+    const body = new HttpParams()
+    .set("text", tweet.text);
+
+    return this.httpClient.post(`${environment.backendEndpoint}/tweets`, body.toString());
+  }
+
+  getTweets(id: number | string) {
+    const expansions = "in_reply_to_user_id,referenced_tweets.id,referenced_tweets.id.author_id,author_id";
+    const mediaFields = "duration_ms,preview_image_url,type,url";
+    const tweetFields = "attachments,author_id,conversation_id,created_at,id,in_reply_to_user_id,referenced_tweets,reply_settings,source,text,public_metrics";
+    const userFields = "id,name,profile_image_url,username,verified";
+    const maxResults = 50;
+    return this.httpClient.get<TweetsResponse>(
+      `${environment.backendEndpoint}/users/${id}/tweets?expansions=${expansions}&media.fields=${mediaFields}&tweet.fields=${tweetFields}&user.fields=${userFields}&max_results=${maxResults}`
+      );
   }
 }

@@ -9,8 +9,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { TwitterAuthHandlerComponent } from './twitter-auth-handler/twitter-auth-handler.component';
 import { RequestInterceptorService } from './services/request-interceptor.service';
-import { FormattedDatePipe } from './pipes/formatted-date.pipe';
-import { GetHqPicturePipe } from './pipes/get-hq-picture.pipe';
 
 @NgModule({
   declarations: [AppComponent, TwitterAuthHandlerComponent],
