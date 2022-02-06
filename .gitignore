@@ -31,5 +31,5 @@ npm-debug.log*
 /plugins
 /www
 
-reverse_proxy/build
-reverse_proxy/node_modules
+reverse-proxy/build
+reverse-proxy/node_modules
