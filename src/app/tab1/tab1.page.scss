@@ -31,9 +31,13 @@
     padding: 25vh 0;
 }
 
-/* ion-card { 
-    transition: 0.25s ease-in-out all;
-    &:hover {
-        transform: scale(1.02);
+.user-card-skeleton {
+    width: 90%;
+    height: 500px;
+}
+
+@media screen and (min-width: 992px) {
+    .user-card-skeleton {
+        width: 400px;
     }
-} */
+}

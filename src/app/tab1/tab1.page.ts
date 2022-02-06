@@ -18,7 +18,7 @@ import { SettingsPopoverComponent } from '../components/settings-popover/setting
 export class Tab1Page implements OnInit {
 
   userInfo: User | undefined;
-  loading = true;
+  userInfoLoading = false;
   tweetContent: string | undefined;
   ownTweets: ExpandedTweet[] = [];
   tweetSending = false;
@@ -63,29 +63,31 @@ export class Tab1Page implements OnInit {
   }
 
   async getUserData(ev?: any) {
-    this.loading = true;
+    this.userInfoLoading = true;
     const accessToken = (await this.indexedDB.readFile({ path: "twittonic/accessToken" })).data;
 
     if (!accessToken) {
-      this.loading = false;
+      this.userInfoLoading = false;
       if (ev) this.presentErrorToast("Token mancante o scaduto!");
       return;
     } 
 
-    this.presentInfoToast("Aggiorno il feed...");
+    this.presentInfoToast("Aggiornamento feed...");
       
     this.twitterService.getMe().subscribe({ 
       next: ((res: UserResponse) => {
       this.eventsBroadcaster.newAuthEvent({ type: "session", success: true });
-      this.loading = false;
+      this.userInfoLoading = false;
       this.userInfo = res.data;
       this.getOwnTweets();
       }).bind(this),
       error: (async (_: any) => {
         this.eventsBroadcaster.newAuthEvent({ type: "session", success: false });
         this.presentErrorToast("Errore durante l'aggiornamento del feed!");
-        this.loading = false;
+        this.userInfoLoading = false;
         await this.indexedDB.deleteMultiple("twittonic/accessToken", "twittonic/refreshToken", "twittonic/createdAt", "twittonic/expiresIn");
+        this.userInfo = undefined;
+        this.ownTweets = undefined;
       }).bind(this)
     });
   }
