@@ -19,7 +19,7 @@ Supported features:
   - [ ] Media attachments
   - [ ] Retweets
   - [ ] Quotes
-- [ ] Support for #hashtags and @ats
+- [X] Support for #hashtags and @ats
 - [ ] Support for interactions with other users (eg. following someone)
 - [ ] In-detail pages for tweets and users
 - [ ] Infinite scroll
