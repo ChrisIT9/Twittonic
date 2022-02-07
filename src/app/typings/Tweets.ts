@@ -1,3 +1,5 @@
+import { HTMLObject } from "./HTMLObject";
+
 export interface Metrics {
     retweet_count: number,
     reply_count: number,
@@ -56,5 +58,6 @@ export interface TweetsResponse {
 export interface ExpandedTweet extends Tweet {
     name?: string,
     username?: string,
-    profile_image_url?: string
+    profile_image_url?: string,
+    htmlObjects?: HTMLObject[]
 }

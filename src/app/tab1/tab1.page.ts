@@ -45,7 +45,7 @@ export class Tab1Page implements OnInit {
 
     this.eventsBroadcaster.tokenEventsObservable.subscribe(async ({ type, success }) => {
       if (type === "expired") {
-        this.presentErrorToast("I token sono scaduti!");
+        this.presentErrorToast("I token sono scaduti!", 5000);
         this.userInfo = undefined;
         this.ownTweets = [];
         this.userInfoLoading = false;
@@ -102,26 +102,26 @@ export class Tab1Page implements OnInit {
     });
   }
 
-  async presentToast(message: string, color: string) {
+  async presentToast(message: string, color: string, duration: number) {
     const toast = await this.toastController.create({
       message,
-      duration: 2000,
+      duration,
       color,
       position: "top"
     });
     toast.present();
   }
 
-  private presentSuccessToast(message: string) {
-    this.presentToast(message, "success");
+  private presentSuccessToast(message: string, duration = 2000) {
+    this.presentToast(message, "success", duration);
   }
 
-  private presentErrorToast(message: string) {
-    this.presentToast(message, "danger");
+  private presentErrorToast(message: string, duration = 2000) {
+    this.presentToast(message, "danger", duration);
   }
 
-  private presentInfoToast(message: string) {
-    this.presentToast(message, "primary");
+  private presentInfoToast(message: string, duration = 2000) {
+    this.presentToast(message, "primary", duration);
   }
 
   postTweet() {

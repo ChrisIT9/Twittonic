@@ -1,19 +1,28 @@
 <ion-card>
   <ion-card-header class="text-start">
     <ion-card-title class="d-flex justify-content-between align-items-start">
-      <div class="d-flex justify-content-start align-items-center">
-        <img class="br-100 mx-2" [src]="tweet.profile_image_url">
-        <div>
-          <b class="text-break">{{ tweet.name | trimWord }}</b>
-          <ion-card-subtitle class="w-100 my-1 text-break">
-            @{{ tweet.username }}
-          </ion-card-subtitle>
+      <a href="https://www.twitter.com/{{tweet.username}}" target="_blank" class="clickable">
+        <div class="d-flex justify-content-start align-items-center">
+          <img class="br-100 mx-2" [src]="tweet.profile_image_url">
+          <div>
+            <b class="text-break">{{ tweet.name | trimWord }}</b>
+            <ion-card-subtitle class="w-100 my-1 text-break">
+              @{{ tweet.username }}
+            </ion-card-subtitle>
+          </div>
         </div>
-      </div>
+      </a>
       <a class="m-2" href="https://www.twitter.com/{{tweet.username}}/status/{{tweet.id}}" target="_blank"><ion-icon name="open-outline"></ion-icon></a>
     </ion-card-title>
     <ion-card-content class="px-1 py-4 tweet-content">
-      {{ tweet.text }}
+      <ng-container class="w-100" *ngFor="let htmlObject of tweet.htmlObjects">
+        <ng-container *ngIf="!htmlObject.transform">
+          {{ htmlObject.content }}
+        </ng-container>
+        <a class="clickable" *ngIf="htmlObject.transform" [routerLink]="htmlObject.routerLink" [queryParams]="htmlObject.queryParams">
+          {{ htmlObject.content }}
+        </a>
+      </ng-container> 
     </ion-card-content>
     <ion-card-content class="px-1 py-0 d-flex justify-content-evenly align-items-center metrics">
       <div class="d-flex justify-content-center align-items-center">

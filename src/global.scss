@@ -41,8 +41,22 @@
     border-radius: 4px;
 }
 
+.w-lg-50 {
+    width: 100%;
+}
+
 @media screen and (min-width: 992px) {
     .w-lg-50 {
         width: 50%;
+    }
+}
+
+a {
+    text-decoration: none;
+    color: var(--ion-color-secondary);
+    transition: 0.1s ease-in-out all;
+
+    &:hover, &:active, &:focus {
+        color: var(--ion-color-tertiary);
     }
 }

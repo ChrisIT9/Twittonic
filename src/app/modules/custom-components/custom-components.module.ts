@@ -4,6 +4,7 @@ import { TweetComponent } from 'src/app/components/tweet/tweet.component';
 import { IonicModule } from '@ionic/angular';
 import { CustomPipesModule } from '../custom-pipes/custom-pipes.module';
 import { SettingsPopoverComponent } from 'src/app/components/settings-popover/settings-popover.component';
+import { RouterModule } from '@angular/router';
 
 
 @NgModule({
@@ -11,7 +12,8 @@ import { SettingsPopoverComponent } from 'src/app/components/settings-popover/se
   imports: [
     CommonModule,
     IonicModule,
-    CustomPipesModule
+    CustomPipesModule,
+    RouterModule
   ],
   exports: [TweetComponent, SettingsPopoverComponent]
 })
