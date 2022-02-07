@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="primary">
-      <ion-button (click)="getUserData()">
+      <ion-button (click)="getUserData($event)">
         <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -122,7 +122,7 @@
     <div class="row w-lg-50 mt-3">
       <h1 *ngIf="userInfo">I tuoi tweet</h1>
       <ion-spinner *ngIf="tweetsLoading" name="bubbles"></ion-spinner>
-      <div class="col-12" *ngFor="let tweet of ownTweets">
+      <div class="col-12" *ngFor="let tweet of ownTweets" [ngStyle]="{ 'display': tweetsLoading ? 'none' : 'block' }">
         <app-tweet [tweet]="tweet"></app-tweet>
       </div>
     </div>

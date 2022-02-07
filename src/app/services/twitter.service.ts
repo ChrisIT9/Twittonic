@@ -61,7 +61,7 @@ export class TwitterService {
     const mediaFields = "duration_ms,preview_image_url,type,url";
     const tweetFields = "attachments,author_id,conversation_id,created_at,id,in_reply_to_user_id,referenced_tweets,reply_settings,source,text,public_metrics";
     const userFields = "id,name,profile_image_url,username,verified";
-    const maxResults = 5;
+    const maxResults = 30;
     return this.httpClient.get<TweetsResponse>(
       `${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${id}/tweets?expansions=${expansions}&media.fields=${mediaFields}&tweet.fields=${tweetFields}&user.fields=${userFields}&max_results=${maxResults}`
       );

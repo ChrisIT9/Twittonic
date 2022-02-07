@@ -4,7 +4,7 @@
       <div class="d-flex justify-content-start align-items-center">
         <img class="br-100 mx-2" [src]="tweet.profile_image_url">
         <div>
-          <b class="text-break">{{ tweet.name }}</b>
+          <b class="text-break">{{ tweet.name | trimWord }}</b>
           <ion-card-subtitle class="w-100 my-1 text-break">
             @{{ tweet.username }}
           </ion-card-subtitle>

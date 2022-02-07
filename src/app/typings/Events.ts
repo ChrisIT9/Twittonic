@@ -3,3 +3,9 @@ export interface AuthEvent {
     message?: string
     success?: boolean
 }
+
+export interface TokenEvent {
+    type?: "expired" | "refreshed",
+    message?: string,
+    success?: boolean
+}

@@ -4,6 +4,7 @@ import { from, Observable, EMPTY } from 'rxjs';
 import { IndexedDBService } from './indexed-db.service';
 import { environment } from 'src/environments/environment';
 import { TwitterService } from './twitter.service';
+import { EventsBroadcasterService } from './events-broadcaster.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,7 @@ export class RequestInterceptorService implements HttpInterceptor {
   bearerRoutes = ['/users', '/tweets'];
   basicRoutes = ['/oauth2'];
 
-  constructor(private indexedDB: IndexedDBService, private twitterService: TwitterService) { }
+  constructor(private indexedDB: IndexedDBService, private twitterService: TwitterService, private eventsBroadcaster: EventsBroadcasterService) { }
   
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return from(this.handle(req, next));
@@ -29,6 +30,7 @@ export class RequestInterceptorService implements HttpInterceptor {
 
     if (currentTime > createdAt + expiresIn) {
       console.warn("Tokens have expired, deleting...");
+      this.eventsBroadcaster.newTokenEvent({ type: "expired", message: "Tokens have expired!" });
       await this.indexedDB.deleteMultiple("twittonic/accessToken", "twittonic/refreshToken", "twittonic/expiresIn", "twittonic/createdAt");
       //await this.indexedDB.writeFile({ path: "twittonic/logs", data: `[${Date.now().toLocaleString()}] Deleted expired tokens.` });
       return EMPTY.toPromise();
@@ -56,6 +58,7 @@ export class RequestInterceptorService implements HttpInterceptor {
           (await this.twitterService.refreshTokens())
           .subscribe(async res => {
             await this.twitterService.saveTokens(res);
+            this.eventsBroadcaster.newTokenEvent({ type: "refreshed", success: true, message: "Tokens have been refreshed!" });
           })
         }
         const accessToken = (await this.indexedDB.readFile({ path: "twittonic/accessToken" })).data;

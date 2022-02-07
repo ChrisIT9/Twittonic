@@ -42,6 +42,20 @@ export class Tab1Page implements OnInit {
         else this.presentErrorToast("Errore durante la disconnessione!");
       }
     })
+
+    this.eventsBroadcaster.tokenEventsObservable.subscribe(async ({ type, success }) => {
+      if (type === "expired") {
+        this.presentErrorToast("I token sono scaduti!");
+        this.userInfo = undefined;
+        this.ownTweets = [];
+        this.userInfoLoading = false;
+        this.tweetsLoading = false;
+        this.eventsBroadcaster.newAuthEvent({ type: "logout", success: true });
+      }
+      if (type === "refreshed" && success) {
+        this.presentSuccessToast("I token sono stati aggiornati!");
+      }
+    })
   }
 
   async startAuth() {
@@ -82,12 +96,8 @@ export class Tab1Page implements OnInit {
       this.getOwnTweets();
       }).bind(this),
       error: (async (_: any) => {
-        this.eventsBroadcaster.newAuthEvent({ type: "session", success: false });
         this.presentErrorToast("Errore durante l'aggiornamento del feed!");
         this.userInfoLoading = false;
-        await this.indexedDB.deleteMultiple("twittonic/accessToken", "twittonic/refreshToken", "twittonic/createdAt", "twittonic/expiresIn");
-        this.userInfo = undefined;
-        this.ownTweets = undefined;
       }).bind(this)
     });
   }
