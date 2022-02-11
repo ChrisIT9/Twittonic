@@ -23,6 +23,9 @@ export class Tab1Page implements OnInit {
   ownTweets: ExpandedTweet[] = [];
   tweetSending = false;
   tweetsLoading = false;
+  likedTweets: Partial<Tweet>[] = [];
+  likedTweetsAlreadyLoaded = false;
+  paginationToken: string;
 
   constructor(private indexedDB: IndexedDBService, 
     private eventsBroadcaster: EventsBroadcasterService, 
@@ -53,7 +56,7 @@ export class Tab1Page implements OnInit {
         this.eventsBroadcaster.newAuthEvent({ type: "logout", success: true });
       }
       if (type === "refreshed" && success) {
-        this.presentSuccessToast("I token sono stati aggiornati!");
+        this.presentSuccessToast("I token sono stati aggiornati!", 1000);
       }
     })
   }
@@ -77,6 +80,7 @@ export class Tab1Page implements OnInit {
   }
 
   async getUserData(ev?: any) {
+    this.paginationToken = undefined;
     this.userInfoLoading = true;
     const accessToken = (await this.indexedDB.readFile({ path: "twittonic/accessToken" })).data;
 
@@ -86,18 +90,22 @@ export class Tab1Page implements OnInit {
       return;
     } 
 
-    this.presentInfoToast("Aggiornamento feed...");
+    this.presentInfoToast("Aggiornamento feed...", 250);
       
     this.twitterService.getMe().subscribe({ 
       next: ((res: UserResponse) => {
       this.eventsBroadcaster.newAuthEvent({ type: "session", success: true });
       this.userInfoLoading = false;
       this.userInfo = res.data;
+      this.ownTweets.splice(0);
       this.getOwnTweets();
+      if (!this.likedTweetsAlreadyLoaded) this.getLikedTweets();
+      if (ev) ev.target.complete();
       }).bind(this),
       error: (async (_: any) => {
-        this.presentErrorToast("Errore durante l'aggiornamento del feed!");
+        this.presentErrorToast("Errore durante l'aggiornamento del feed!", 500);
         this.userInfoLoading = false;
+        if (ev) ev.target.complete();
       }).bind(this)
     });
   }
@@ -149,18 +157,29 @@ export class Tab1Page implements OnInit {
     })
   }
 
-  getOwnTweets() {
-    this.tweetsLoading = true;
+  getOwnTweets(ev?: any) {
+    if (!this.ownTweets.length && ev) {
+      ev.target.complete();
+      return;
+    }
+    if (!ev) this.tweetsLoading = true;
 
-    this.twitterService.getTweets(this.userInfo.id).subscribe({
+    this.twitterService.getTweets(this.userInfo.id, this.paginationToken).subscribe({
       next: ((res: TweetsResponse) => {
-        this.ownTweets = getExpandedTweets(res);
-        this.tweetsLoading = false;
-        this.presentInfoToast("Feed aggiornato.");
+        this.ownTweets.push(...getExpandedTweets(res));
+
+        if (!res.meta.next_token) ev.target.disabled = true;
+        else this.paginationToken = res.meta.next_token;
+        if (!ev) {
+          this.tweetsLoading = false;
+          this.presentInfoToast("Feed aggiornato.", 500);
+        } 
+        if (ev) ev.target.complete();
       }).bind(this),
       error: ((_: any) => {
-        this.tweetsLoading = false;
-        this.presentErrorToast("Errore durante il caricamento dei tweet!");
+        if (!ev) this.tweetsLoading = false;
+        if (ev) ev.target.complete();  
+        this.presentErrorToast("Errore durante il caricamento dei tweet!", 500);
       }).bind(this)
     })
   }
@@ -174,6 +193,27 @@ export class Tab1Page implements OnInit {
       dismissOnSelect: true
     });
     await popover.present();
+  }
+
+  async getLikedTweets(paginationToken?: string) {
+    const accessToken = (await this.indexedDB.readFile({ path: "twittonic/accessToken" })).data;
+
+    if (!accessToken) return;
+
+    this.twitterService.getTweetsLikedByUser(this.userInfo.id, paginationToken).subscribe({ 
+      next: ((res: Pick<TweetsResponse, 'data' | 'meta'>) => {
+        this.likedTweetsAlreadyLoaded = true;
+        res.data.length > 0 && this.likedTweets.push(...res.data);
+        if (res.meta.result_count === 100 && res.meta.next_token) this.getLikedTweets(res.meta.next_token);
+      }).bind(this),
+      error: ((_) => {
+        this.presentErrorToast("Qualcosa è andato storto.");
+      }).bind(this)
+    })
+  }
+
+  tweetHasBeenLiked(tweet: Tweet) {
+    return this.likedTweets.some(likedTweet => likedTweet.id === tweet.id);
   }
 
 }

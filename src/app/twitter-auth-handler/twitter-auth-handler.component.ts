@@ -25,7 +25,7 @@ export class TwitterAuthHandlerComponent implements OnInit {
   }
 
   async ngOnInit() {
-    if (!this.code) return this.router.navigateByUrl("/home");
+    if (!this.code && !this.error) return this.router.navigateByUrl("/home");
     if (this.error) {
       await this.indexedDB.deleteFile({ path: `${environment.tempStoragePath}/state` });
       await this.indexedDB.deleteFile({ path: `${environment.tempStoragePath}/challenge` });

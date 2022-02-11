@@ -34,7 +34,7 @@
         <b class="mx-2">{{ tweet.public_metrics.retweet_count }}</b>
       </div>
       <div class="d-flex justify-content-center align-items-center">
-        <ion-icon name="heart-outline"></ion-icon>
+        <ion-icon [name]="liked ? 'heart' : 'heart-outline'" (click)="toggleLike()"></ion-icon>
         <b class="mx-2">{{ tweet.public_metrics.like_count }}</b>
       </div>
     </ion-card-content>

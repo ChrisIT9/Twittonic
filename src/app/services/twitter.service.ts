@@ -56,14 +56,14 @@ export class TwitterService {
     return this.httpClient.post(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/tweets`, JSON.stringify(tweet));
   }
 
-  getTweets(id: number | string) {
+  getTweets(id: number | string, paginationToken?: string) {
     const expansions = "in_reply_to_user_id,referenced_tweets.id,referenced_tweets.id.author_id,author_id";
     const mediaFields = "duration_ms,preview_image_url,type,url";
     const tweetFields = "attachments,author_id,conversation_id,created_at,id,in_reply_to_user_id,referenced_tweets,reply_settings,source,text,public_metrics";
     const userFields = "id,name,profile_image_url,username,verified";
     const maxResults = 5;
     return this.httpClient.get<TweetsResponse>(
-      `${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${id}/tweets?expansions=${expansions}&media.fields=${mediaFields}&tweet.fields=${tweetFields}&user.fields=${userFields}&max_results=${maxResults}`
+      `${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${id}/tweets?expansions=${expansions}&media.fields=${mediaFields}&tweet.fields=${tweetFields}&user.fields=${userFields}&max_results=${maxResults}${paginationToken ? `&pagination_token=${paginationToken}`: ""}`
       );
   }
 
@@ -82,5 +82,9 @@ export class TwitterService {
 
       return [...acc, this.httpClient.post(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/oauth2/revoke`, body.toString())];
     }, [] as Observable<Object>[])
+  }
+
+  getTweetsLikedByUser(userId: number | string, paginationToken?: string) {
+    return this.httpClient.get<Pick<TweetsResponse, 'data' | 'meta'>>(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${userId}/liked_tweets?${paginationToken ? `&pagination_token=${paginationToken}` : ''}`);
   }
 }

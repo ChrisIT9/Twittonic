@@ -22,7 +22,7 @@ Supported features:
 - [X] Support for #hashtags and @ats
 - [ ] Support for interactions with other users (eg. following someone)
 - [ ] In-detail pages for tweets and users
-- [ ] Infinite scroll
+- [X] Infinite scroll
 - [ ] Search and trending page
 - [ ] Notifications page (probably polling-based)
 - [ ] Profile editing (eg. changing bio, username)
