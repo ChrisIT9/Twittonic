@@ -26,15 +26,15 @@
     </ion-card-content>
     <ion-card-content class="px-1 py-0 d-flex justify-content-evenly align-items-center metrics">
       <div class="d-flex justify-content-center align-items-center">
-        <ion-icon name="chatbubble-outline"></ion-icon>
+        <ion-icon name="chatbubble-outline" (click)="raiseEvent('quote')"></ion-icon>
         <b class="mx-2">{{ tweet.public_metrics.reply_count }}</b>
       </div>
       <div class="d-flex justify-content-center align-items-center">
-        <ion-icon name="repeat-outline"></ion-icon>
+        <ion-icon name="repeat-outline" (click)="raiseEvent('retweet')"></ion-icon>
         <b class="mx-2">{{ tweet.public_metrics.retweet_count }}</b>
       </div>
       <div class="d-flex justify-content-center align-items-center">
-        <ion-icon [name]="liked ? 'heart' : 'heart-outline'" (click)="toggleLike()"></ion-icon>
+        <ion-icon [name]="liked ? 'heart' : 'heart-outline'" (click)="raiseEvent('like')"></ion-icon>
         <b class="mx-2">{{ tweet.public_metrics.like_count }}</b>
       </div>
     </ion-card-content>

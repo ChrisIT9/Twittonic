@@ -1,4 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { TwitterService } from 'src/app/services/twitter.service';
 import { ExpandedTweet } from 'src/app/typings/Tweets';
 
 @Component({
@@ -9,13 +10,19 @@ import { ExpandedTweet } from 'src/app/typings/Tweets';
 export class TweetComponent implements OnInit {
   @Input() tweet: ExpandedTweet;
   @Input() liked: boolean;
-  constructor() { }
+  @Output() tweetEvent = new EventEmitter();
+  
+  constructor(private twitterService: TwitterService) { }
 
   ngOnInit() {}
 
   toggleLike() {
     this.tweet.public_metrics.like_count += this.liked ? -1 : 1;
     this.liked = !this.liked;
+  }
+
+  raiseEvent(type: "like" | "retweet" | "quote") {
+    this.tweetEvent.emit({ type, activatedTweet: this });
   }
 
 }

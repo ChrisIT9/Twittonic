@@ -65,7 +65,6 @@ export class RequestInterceptorService implements HttpInterceptor {
 
         const authReq = req.clone({
           setHeaders: {
-            "Content-Type": lowerCaseUrl.includes("/tweets") ? "application/json" : "application/x-www-form-urlencoded",
             Authorization: `Bearer ${accessToken}`
           }
         });

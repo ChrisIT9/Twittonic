@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { TweetsResponse } from '../typings/Tweets';
+import { TweetLikeResponse, TweetsResponse } from '../typings/Tweets';
 import {  TwitterOAuthResponse } from '../typings/TwitterOAuthRequest';
 import { UserResponse } from '../typings/TwitterUsers';
 import { IndexedDBService } from './indexed-db.service';
@@ -25,7 +25,13 @@ export class TwitterService {
     .set("code_verifier", challenge)
     .set("grant_type", "authorization_code");
 
-    return this.httpClient.post<TwitterOAuthResponse>(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/oauth2/token`, body.toString());
+    return this.httpClient.post<TwitterOAuthResponse>(
+      `${environment.reverseProxyUrl}/${environment.twitterEndpoint}/oauth2/token`, 
+      body.toString(),
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      }
+    );
   }
 
   async refreshTokens() {
@@ -37,7 +43,13 @@ export class TwitterService {
     .set("grant_type", "refresh_token")
     .set("refresh_token", refreshToken);
 
-    return this.httpClient.post<TwitterOAuthResponse>(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/oauth2/token`, body.toString());
+    return this.httpClient.post<TwitterOAuthResponse>(
+      `${environment.reverseProxyUrl}/${environment.twitterEndpoint}/oauth2/token`, 
+      body.toString(),
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      }
+    );
   }
 
   async saveTokens({ access_token, refresh_token, expires_in }: TwitterOAuthResponse) {
@@ -53,7 +65,13 @@ export class TwitterService {
   }
 
   postTweet(tweet: { text: string }) {
-    return this.httpClient.post(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/tweets`, JSON.stringify(tweet));
+    return this.httpClient.post(
+      `${environment.reverseProxyUrl}/${environment.twitterEndpoint}/tweets`, 
+      JSON.stringify(tweet),
+      {
+        headers: { "Content-Type": "application/json" }
+      }
+    );
   }
 
   getTweets(id: number | string, paginationToken?: string) {
@@ -64,7 +82,7 @@ export class TwitterService {
     const maxResults = 5;
     return this.httpClient.get<TweetsResponse>(
       `${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${id}/tweets?expansions=${expansions}&media.fields=${mediaFields}&tweet.fields=${tweetFields}&user.fields=${userFields}&max_results=${maxResults}${paginationToken ? `&pagination_token=${paginationToken}`: ""}`
-      );
+    );
   }
 
   async revokeTokens() {
@@ -80,11 +98,27 @@ export class TwitterService {
       .set("client_id", environment.twitterClientId)
       .set("token_type_hint", type);
 
-      return [...acc, this.httpClient.post(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/oauth2/revoke`, body.toString())];
+      return [...acc, this.httpClient.post(
+        `${environment.reverseProxyUrl}/${environment.twitterEndpoint}/oauth2/revoke`, 
+        body.toString(),
+        {
+          headers: { "Content-Type": "application/x-www-form-urlencoded" }
+        }
+      )];
     }, [] as Observable<Object>[])
   }
 
   getTweetsLikedByUser(userId: number | string, paginationToken?: string) {
     return this.httpClient.get<Pick<TweetsResponse, 'data' | 'meta'>>(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${userId}/liked_tweets?${paginationToken ? `&pagination_token=${paginationToken}` : ''}`);
+  }
+
+  likeTweet(userId: number | string, tweetId: string | number) {
+    return this.httpClient.post<TweetLikeResponse>(`
+      ${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${userId}/likes`, 
+      { tweet_id: tweetId },
+      {
+        headers: { "Content-Type": "application/json" }
+      }
+    )
   }
 }

@@ -125,13 +125,13 @@
       <h1 *ngIf="userInfo">I tuoi tweet</h1>
       <ion-spinner *ngIf="tweetsLoading" name="bubbles"></ion-spinner>
       <div class="col-12" *ngFor="let tweet of ownTweets" [ngStyle]="{ 'display': tweetsLoading ? 'none' : 'block' }">
-        <app-tweet [tweet]="tweet" [liked]="tweetHasBeenLiked(tweet)"></app-tweet>
+        <app-tweet [tweet]="tweet" [liked]="tweetHasBeenLiked(tweet)" (tweetEvent)="handleTweetEvent($event)"></app-tweet>
       </div>
     </div>
 
   </div>
 
-  <ion-infinite-scroll threshold="100px" (ionInfinite)="getOwnTweets($event)">
+  <ion-infinite-scroll threshold="250px" (ionInfinite)="getOwnTweets($event)">
     <ion-infinite-scroll-content
       loadingSpinner="bubbles"
       loadingText="Carico più tweet...">

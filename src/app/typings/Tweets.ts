@@ -61,3 +61,7 @@ export interface ExpandedTweet extends Tweet {
     profile_image_url?: string,
     htmlObjects?: HTMLObject[]
 }
+
+export interface TweetLikeResponse {
+    data: { liked: boolean }
+}

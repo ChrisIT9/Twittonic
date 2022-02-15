@@ -6,9 +6,10 @@ import { IndexedDBService } from '../services/indexed-db.service';
 import { TwitterService } from '../services/twitter.service';
 import { User, UserResponse } from '../typings/TwitterUsers';
 import { PopoverController, ToastController } from '@ionic/angular';
-import { ExpandedTweet, Tweet, TweetsResponse } from '../typings/Tweets';
+import { ExpandedTweet, Tweet, TweetLikeResponse, TweetsResponse } from '../typings/Tweets';
 import { getExpandedTweets } from 'src/utils/Misc';
 import { SettingsPopoverComponent } from '../components/settings-popover/settings-popover.component';
+import { TweetEvent } from '../typings/Events';
 
 @Component({
   selector: 'app-tab1',
@@ -26,6 +27,7 @@ export class Tab1Page implements OnInit {
   likedTweets: Partial<Tweet>[] = [];
   likedTweetsAlreadyLoaded = false;
   paginationToken: string;
+  infiniteScrollTarget: any;
 
   constructor(private indexedDB: IndexedDBService, 
     private eventsBroadcaster: EventsBroadcasterService, 
@@ -82,6 +84,7 @@ export class Tab1Page implements OnInit {
   async getUserData(ev?: any) {
     this.paginationToken = undefined;
     this.userInfoLoading = true;
+    if (this.infiniteScrollTarget !== undefined) this.infiniteScrollTarget.disabled = false;
     const accessToken = (await this.indexedDB.readFile({ path: "twittonic/accessToken" })).data;
 
     if (!accessToken) {
@@ -168,8 +171,12 @@ export class Tab1Page implements OnInit {
       next: ((res: TweetsResponse) => {
         this.ownTweets.push(...getExpandedTweets(res));
 
-        if (!res.meta.next_token) ev.target.disabled = true;
+        if (!res.meta.next_token) {
+          ev.target.disabled = true;
+          this.infiniteScrollTarget = ev.target;
+        } 
         else this.paginationToken = res.meta.next_token;
+
         if (!ev) {
           this.tweetsLoading = false;
           this.presentInfoToast("Feed aggiornato.", 500);
@@ -214,6 +221,23 @@ export class Tab1Page implements OnInit {
 
   tweetHasBeenLiked(tweet: Tweet) {
     return this.likedTweets.some(likedTweet => likedTweet.id === tweet.id);
+  }
+
+  handleTweetEvent({ type, activatedTweet }: TweetEvent) {
+    switch(type) {
+      case "like":
+        this.twitterService.likeTweet(this.userInfo.id, activatedTweet.tweet.id).subscribe({
+          next: ((res: TweetLikeResponse) => {
+            activatedTweet.toggleLike();
+          }).bind(this),
+          error: ((_: any) => {
+            this.presentErrorToast("Qualcosa è andato storto", 350);
+          }).bind(this)
+        })
+        break;
+      default:
+        break;
+    }
   }
 
 }
