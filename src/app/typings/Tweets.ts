@@ -84,7 +84,7 @@ export interface ExpandedTweet extends Tweet {
     htmlObjects?: HTMLObject[],
     mediaUrl?: string[],
     retweetedTweet?: Tweet,
-    quotedUsername?: string
+    quotedUser?: User
 }
 
 export interface TweetLikeResponse {

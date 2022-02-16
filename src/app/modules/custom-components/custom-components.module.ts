@@ -6,16 +6,17 @@ import { CustomPipesModule } from '../custom-pipes/custom-pipes.module';
 import { SettingsPopoverComponent } from 'src/app/components/settings-popover/settings-popover.component';
 import { RouterModule } from '@angular/router';
 import { ImageCarouselComponent } from 'src/app/components/image-carousel/image-carousel.component';
+import { FormattedHtmlObjectsComponent } from 'src/app/components/formatted-html-objects/formatted-html-objects.component';
 
 
 @NgModule({
-  declarations: [TweetComponent, SettingsPopoverComponent, ImageCarouselComponent],
+  declarations: [TweetComponent, SettingsPopoverComponent, ImageCarouselComponent, FormattedHtmlObjectsComponent],
   imports: [
     CommonModule,
     IonicModule,
     CustomPipesModule,
     RouterModule
   ],
-  exports: [TweetComponent, SettingsPopoverComponent, ImageCarouselComponent]
+  exports: [TweetComponent, SettingsPopoverComponent, ImageCarouselComponent, FormattedHtmlObjectsComponent]
 })
 export class CustomComponentsModule { }

@@ -89,7 +89,8 @@ export class TwitterService {
     const expansions = "in_reply_to_user_id,referenced_tweets.id,referenced_tweets.id.author_id,author_id,attachments.media_keys";
     const mediaFields = "duration_ms,preview_image_url,type,url";
     const tweetFields = "attachments,author_id,conversation_id,created_at,id,in_reply_to_user_id,referenced_tweets,reply_settings,source,text,public_metrics,entities";
-    return this.httpClient.get<TweetResponse>(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/tweets/${tweetId}?expansions=${expansions}&media.fields=${mediaFields}&tweet.fields=${tweetFields}`);
+    const userFields = "id,name,profile_image_url,username,verified";
+    return this.httpClient.get<TweetResponse>(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/tweets/${tweetId}?expansions=${expansions}&media.fields=${mediaFields}&tweet.fields=${tweetFields}&user.fields=${userFields}`);
   }
 
   async revokeTokens() {

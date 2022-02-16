@@ -15,9 +15,21 @@
       <a class="m-2" href="https://www.twitter.com/{{tweet.username}}/status/{{tweet.id}}" target="_blank"><ion-icon name="open-outline"></ion-icon></a>
     </ion-card-title>
     <ion-card-content class="px-1 py-4 tweet-content">
-      <span *ngIf="tweet?.referenced_tweets && tweet.referenced_tweets[0].type === 'quoted'"> <b> {{ tweet.text }} </b> </span>
-      <ion-card-subtitle *ngIf="tweet?.referenced_tweets && (tweet.referenced_tweets[0].type === 'retweeted' || tweet.referenced_tweets[0].type === 'quoted') ">
-        <b class="d-flex justify-content-start align-items-center"> <ion-icon name="repeat-outline" class="mx-1"></ion-icon> Ha ritwittato {{ tweet.quotedUsername }} </b>
+      <b *ngIf="tweet?.referenced_tweets && tweet.referenced_tweets[0].type === 'quoted'"> {{ tweet.text }} </b>
+      <ion-card-subtitle *ngIf="tweet?.referenced_tweets && (tweet.referenced_tweets[0].type === 'retweeted' || tweet.referenced_tweets[0].type === 'quoted')" class="my-2">
+        <div class="d-flex flex-column justify-content-between align-items-start"> 
+          <div>
+            <ion-icon name="repeat-outline" class="mx-1"></ion-icon> 
+            Ha ritwittato
+          </div>
+          <a class="d-flex clickable justify-content-start align-items-center my-2" href="https://www.twitter.com/{{tweet.quotedUser.username}}" target="_blank">
+            <img [src]="tweet.quotedUser.profile_image_url" class="br-100">
+            <div class="mx-2 d-flex flex-column justify-content-between align-items-start">
+              <span class="d-flex justify-content-center align-items-center"> {{ tweet.quotedUser.name }} <ion-icon name="checkmark-circle" *ngIf="tweet.quotedUser.verified" class="mx-1"></ion-icon> </span>
+              <span> @{{ tweet.quotedUser.username }} </span>
+            </div>
+          </a>
+        </div>
       </ion-card-subtitle>
       <ng-container class="w-100" *ngFor="let htmlObject of tweet.htmlObjects">
         <ng-container *ngIf="!htmlObject.transform">
@@ -27,7 +39,7 @@
           {{ htmlObject.content }}
         </a>
       </ng-container> 
-      <app-image-carousel *ngIf="tweet.mediaUrl" [imageUrls]="tweet.mediaUrl"></app-image-carousel>
+      <app-image-carousel *ngIf="tweet.mediaUrl" [imageUrls]="tweet.mediaUrl" class="my-2"></app-image-carousel>
     </ion-card-content>
     <ion-card-content class="px-1 py-0 d-flex justify-content-evenly align-items-center metrics">
       <div class="d-flex justify-content-center align-items-center">
