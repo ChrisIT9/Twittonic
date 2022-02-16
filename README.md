@@ -9,7 +9,7 @@ Supported features:
 - [ ] Advanced tweeting capabilities
   - [ ] Deleting tweets
   - [ ] Retweeting
-  - [ ] Liking
+  - [X] Liking
   - [ ] Quoting
   - [ ] Media attachments
 - [ ] More details per tweet (when available)
