@@ -11,18 +11,32 @@ export class TweetComponent implements OnInit {
   @Input() tweet: ExpandedTweet;
   @Input() liked: boolean;
   @Output() tweetEvent = new EventEmitter();
+  retweeted: boolean;
   
   constructor(private twitterService: TwitterService) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.retweeted = this.tweet?.referenced_tweets && this.tweet.referenced_tweets[0].type === 'retweeted'
+  }
 
   toggleLike() {
     this.tweet.public_metrics.like_count += this.liked ? -1 : 1;
     this.liked = !this.liked;
   }
 
+  toggleRetweet() {
+    this.retweeted = !this.retweeted;
+  }
+
   raiseEvent(type: "like" | "retweet" | "quote") {
-    this.tweetEvent.emit({ type, activatedTweet: this });
+    if (type === "like") {
+      if (this.liked) this.tweetEvent.emit({ type: "unlike", activatedTweet: this });
+      else this.tweetEvent.emit({ type, activatedTweet: this });
+      this.toggleLike();
+    } 
+    if (type === "retweet") {
+      this.toggleRetweet();
+    }
   }
 
 }

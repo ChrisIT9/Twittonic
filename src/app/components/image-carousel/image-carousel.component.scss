@@ -1,0 +1,39 @@
+.image-container {
+    width: 100%;
+    position: relative;
+}
+
+.image {
+    position: relative;
+    z-index: 0;
+}
+
+.back {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    z-index: 1;
+    cursor: pointer;
+    transition: 0.2s ease-in-out all;
+    font-size: 32px;
+    color: black;
+
+    &:hover {
+        transform: scale(1.25);
+    }
+}
+
+.forward {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    z-index: 1;
+    cursor: pointer;
+    transition: 0.2s ease-in-out all;
+    font-size: 32px;
+    color: black;
+
+    &:hover {
+        transform: scale(1.25);
+    }
+}

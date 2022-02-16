@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { TweetLikeResponse, TweetsResponse } from '../typings/Tweets';
+import { TweetLikeResponse, TweetResponse, TweetsResponse } from '../typings/Tweets';
 import {  TwitterOAuthResponse } from '../typings/TwitterOAuthRequest';
 import { UserResponse } from '../typings/TwitterUsers';
 import { IndexedDBService } from './indexed-db.service';
@@ -74,15 +74,22 @@ export class TwitterService {
     );
   }
 
-  getTweets(id: number | string, paginationToken?: string) {
-    const expansions = "in_reply_to_user_id,referenced_tweets.id,referenced_tweets.id.author_id,author_id";
+  getTweets(userId: number | string, paginationToken?: string) {
+    const expansions = "in_reply_to_user_id,referenced_tweets.id,referenced_tweets.id.author_id,author_id,attachments.media_keys";
     const mediaFields = "duration_ms,preview_image_url,type,url";
-    const tweetFields = "attachments,author_id,conversation_id,created_at,id,in_reply_to_user_id,referenced_tweets,reply_settings,source,text,public_metrics";
+    const tweetFields = "attachments,author_id,conversation_id,created_at,id,in_reply_to_user_id,referenced_tweets,reply_settings,source,text,public_metrics,entities";
     const userFields = "id,name,profile_image_url,username,verified";
     const maxResults = 5;
     return this.httpClient.get<TweetsResponse>(
-      `${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${id}/tweets?expansions=${expansions}&media.fields=${mediaFields}&tweet.fields=${tweetFields}&user.fields=${userFields}&max_results=${maxResults}${paginationToken ? `&pagination_token=${paginationToken}`: ""}`
+      `${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${userId}/tweets?expansions=${expansions}&media.fields=${mediaFields}&tweet.fields=${tweetFields}&user.fields=${userFields}&max_results=${maxResults}${paginationToken ? `&pagination_token=${paginationToken}`: ""}`
     );
+  }
+
+  getTweetById(tweetId: number | string) {
+    const expansions = "in_reply_to_user_id,referenced_tweets.id,referenced_tweets.id.author_id,author_id,attachments.media_keys";
+    const mediaFields = "duration_ms,preview_image_url,type,url";
+    const tweetFields = "attachments,author_id,conversation_id,created_at,id,in_reply_to_user_id,referenced_tweets,reply_settings,source,text,public_metrics,entities";
+    return this.httpClient.get<TweetResponse>(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/tweets/${tweetId}?expansions=${expansions}&media.fields=${mediaFields}&tweet.fields=${tweetFields}`);
   }
 
   async revokeTokens() {
@@ -109,13 +116,22 @@ export class TwitterService {
   }
 
   getTweetsLikedByUser(userId: number | string, paginationToken?: string) {
-    return this.httpClient.get<Pick<TweetsResponse, 'data' | 'meta'>>(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${userId}/liked_tweets?${paginationToken ? `&pagination_token=${paginationToken}` : ''}`);
+    return this.httpClient.get<Pick<TweetsResponse, 'data' | 'meta'>>(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${userId}/liked_tweets${paginationToken ? `?pagination_token=${paginationToken}` : ''}`);
   }
 
   likeTweet(userId: number | string, tweetId: string | number) {
     return this.httpClient.post<TweetLikeResponse>(`
       ${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${userId}/likes`, 
       { tweet_id: tweetId },
+      {
+        headers: { "Content-Type": "application/json" }
+      }
+    )
+  }
+
+  unlikeTweet(userId: number | string, tweetId: string | number) {
+    return this.httpClient.delete<TweetLikeResponse>(`
+      ${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${userId}/likes/${tweetId}`, 
       {
         headers: { "Content-Type": "application/json" }
       }

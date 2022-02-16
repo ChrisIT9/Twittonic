@@ -13,6 +13,7 @@ export class RequestInterceptorService implements HttpInterceptor {
 
   bearerRoutes = ['/users', '/tweets'];
   basicRoutes = ['/oauth2'];
+  tokensAreRefreshing = false;
 
   constructor(private indexedDB: IndexedDBService, private twitterService: TwitterService, private eventsBroadcaster: EventsBroadcasterService) { }
   
@@ -36,9 +37,7 @@ export class RequestInterceptorService implements HttpInterceptor {
       return EMPTY.toPromise();
     }
 
-    if (
-      this.basicRoutes.some(item => lowerCaseUrl.includes(item.toLowerCase()))
-      ) {
+    if (this.basicRoutes.some(item => lowerCaseUrl.includes(item.toLowerCase()))) {
       const base64AuthString = btoa(`${environment.twitterClientId}:${environment.twitterClientSecret}`);
       const authReq = req.clone({
         setHeaders: {
@@ -49,27 +48,28 @@ export class RequestInterceptorService implements HttpInterceptor {
       return next.handle(authReq).toPromise();
     }
 
-    if (
-      this.bearerRoutes.some(item => lowerCaseUrl.includes(item.toLowerCase()) && createdAt)
-      ) { // request to routes requiring bearer authorization
-        if (currentTime - 600 > createdAt + expiresIn) { // Refresh tokens if they're about to expire
-          console.log("Tokens are about to expire, refreshing...");
+    if (this.bearerRoutes.some(item => lowerCaseUrl.includes(item.toLowerCase()) && createdAt)) {
+      // request to routes requiring bearer authorization
+      if (currentTime > createdAt + expiresIn - 1800 && !this.tokensAreRefreshing) { // Refresh tokens if they're about to expire
+        console.log("Tokens are about to expire, refreshing...");
+        this.tokensAreRefreshing = true;
 
-          (await this.twitterService.refreshTokens())
+        (await this.twitterService.refreshTokens())
           .subscribe(async res => {
             await this.twitterService.saveTokens(res);
+            this.tokensAreRefreshing = false;
             this.eventsBroadcaster.newTokenEvent({ type: "refreshed", success: true, message: "Tokens have been refreshed!" });
           })
+      }
+      const accessToken = (await this.indexedDB.readFile({ path: "twittonic/accessToken" })).data;
+
+      const authReq = req.clone({
+        setHeaders: {
+          Authorization: `Bearer ${accessToken}`
         }
-        const accessToken = (await this.indexedDB.readFile({ path: "twittonic/accessToken" })).data;
+      });
 
-        const authReq = req.clone({
-          setHeaders: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        });
-
-        return next.handle(authReq).toPromise();
+      return next.handle(authReq).toPromise();
     }
 
     return next.handle(req).toPromise();

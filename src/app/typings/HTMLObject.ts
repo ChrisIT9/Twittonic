@@ -2,5 +2,6 @@ export interface HTMLObject {
     routerLink?: string,
     queryParams?: { [key: string]: any }
     transform?: boolean,
-    content?: string
+    content?: string,
+    href?: string
 }

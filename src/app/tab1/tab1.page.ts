@@ -33,7 +33,8 @@ export class Tab1Page implements OnInit {
     private eventsBroadcaster: EventsBroadcasterService, 
     private twitterService: TwitterService,
     private toastController: ToastController,
-    private popoverController: PopoverController) {
+    private popoverController: PopoverController
+    ) {
   }
   
   ngOnInit(): void {
@@ -84,7 +85,10 @@ export class Tab1Page implements OnInit {
   async getUserData(ev?: any) {
     this.paginationToken = undefined;
     this.userInfoLoading = true;
-    if (this.infiniteScrollTarget !== undefined) this.infiniteScrollTarget.disabled = false;
+    if (this.infiniteScrollTarget !== undefined) {
+      this.infiniteScrollTarget.disabled = false;
+      this.infiniteScrollTarget = undefined;
+    } 
     const accessToken = (await this.indexedDB.readFile({ path: "twittonic/accessToken" })).data;
 
     if (!accessToken) {
@@ -168,8 +172,8 @@ export class Tab1Page implements OnInit {
     if (!ev) this.tweetsLoading = true;
 
     this.twitterService.getTweets(this.userInfo.id, this.paginationToken).subscribe({
-      next: ((res: TweetsResponse) => {
-        this.ownTweets.push(...getExpandedTweets(res));
+      next: (async (res: TweetsResponse) => {
+        this.ownTweets.push(...await getExpandedTweets(res, this.twitterService));
 
         if (!res.meta.next_token) {
           ev.target.disabled = true;
@@ -181,11 +185,11 @@ export class Tab1Page implements OnInit {
           this.tweetsLoading = false;
           this.presentInfoToast("Feed aggiornato.", 500);
         } 
-        if (ev) ev.target.complete();
+        else ev.target.complete();
       }).bind(this),
       error: ((_: any) => {
         if (!ev) this.tweetsLoading = false;
-        if (ev) ev.target.complete();  
+        else ev.target.complete();  
         this.presentErrorToast("Errore durante il caricamento dei tweet!", 500);
       }).bind(this)
     })
@@ -220,18 +224,39 @@ export class Tab1Page implements OnInit {
   }
 
   tweetHasBeenLiked(tweet: Tweet) {
-    return this.likedTweets.some(likedTweet => likedTweet.id === tweet.id);
+    return this.likedTweets.some(likedTweet => {
+      return likedTweet.id === tweet.id || (tweet.referenced_tweets && tweet.referenced_tweets[0].id === likedTweet.id)
+    });
   }
 
   handleTweetEvent({ type, activatedTweet }: TweetEvent) {
     switch(type) {
       case "like":
         this.twitterService.likeTweet(this.userInfo.id, activatedTweet.tweet.id).subscribe({
-          next: ((res: TweetLikeResponse) => {
-            activatedTweet.toggleLike();
+          next: ((_: TweetLikeResponse) => {
+            if (activatedTweet.tweet.referenced_tweets) 
+              this.likedTweets.push(activatedTweet.tweet.referenced_tweets[0])
+            else this.likedTweets.push(activatedTweet.tweet);
           }).bind(this),
           error: ((_: any) => {
-            this.presentErrorToast("Qualcosa è andato storto", 350);
+            this.presentErrorToast("Qualcosa è andato storto", 500);
+            activatedTweet.toggleLike();
+          }).bind(this)
+        })
+        break;
+      case "unlike":
+        this.twitterService.unlikeTweet(this.userInfo.id, activatedTweet.tweet.id).subscribe({
+          next: ((_: TweetLikeResponse) => {
+            let tweetIndex: number;
+            if (activatedTweet.tweet.referenced_tweets) {
+              tweetIndex = this.likedTweets.findIndex(item => activatedTweet.tweet.referenced_tweets[0].id === item.id);
+            }
+            else tweetIndex = this.likedTweets.findIndex(item => item.id === activatedTweet.tweet.id)
+            this.likedTweets.splice(tweetIndex, 1);
+          }).bind(this),
+          error: ((_: any) => {
+            this.presentErrorToast("Qualcosa è andato storto", 500);
+            activatedTweet.toggleLike();
           }).bind(this)
         })
         break;

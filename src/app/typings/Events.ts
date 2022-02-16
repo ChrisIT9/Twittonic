@@ -14,6 +14,6 @@ export interface TokenEvent {
 }
 
 export interface TweetEvent {
-    type: "like" | "retweet" | "quote",
+    type: "like" | "unlike" | "retweet" | "quote",
     activatedTweet: TweetComponent
 }

@@ -15,27 +15,31 @@
       <a class="m-2" href="https://www.twitter.com/{{tweet.username}}/status/{{tweet.id}}" target="_blank"><ion-icon name="open-outline"></ion-icon></a>
     </ion-card-title>
     <ion-card-content class="px-1 py-4 tweet-content">
+      <ion-card-subtitle *ngIf="tweet?.referenced_tweets && tweet.referenced_tweets[0].type === 'retweeted'">
+        <b class="d-flex justify-content-start align-items-center"> <ion-icon name="repeat-outline" class="mx-1"></ion-icon> Ha ritwittato </b>
+      </ion-card-subtitle>
       <ng-container class="w-100" *ngFor="let htmlObject of tweet.htmlObjects">
         <ng-container *ngIf="!htmlObject.transform">
           {{ htmlObject.content }}
         </ng-container>
-        <a class="clickable" *ngIf="htmlObject.transform" [routerLink]="htmlObject.routerLink" [queryParams]="htmlObject.queryParams">
+        <a class="clickable" *ngIf="htmlObject.transform" href="https://www.google.com" [routerLink]="htmlObject.routerLink" [queryParams]="htmlObject.queryParams">
           {{ htmlObject.content }}
         </a>
       </ng-container> 
+      <app-image-carousel *ngIf="tweet.retweetedTweet?.attachments" [imageUrls]="tweet.mediaUrl"></app-image-carousel>
     </ion-card-content>
     <ion-card-content class="px-1 py-0 d-flex justify-content-evenly align-items-center metrics">
       <div class="d-flex justify-content-center align-items-center">
         <ion-icon name="chatbubble-outline" (click)="raiseEvent('quote')"></ion-icon>
-        <b class="mx-2">{{ tweet.public_metrics.reply_count }}</b>
+        <b class="mx-2">{{ (tweet.retweetedTweet?.public_metrics?.reply_count ||  tweet.public_metrics.reply_count) | formatNumber }}</b>
       </div>
       <div class="d-flex justify-content-center align-items-center">
-        <ion-icon name="repeat-outline" (click)="raiseEvent('retweet')"></ion-icon>
-        <b class="mx-2">{{ tweet.public_metrics.retweet_count }}</b>
+        <ion-icon name="repeat-outline" (click)="raiseEvent('retweet')" [ngClass]="{'green': retweeted}"></ion-icon>
+        <b class="mx-2">{{ (tweet.retweetedTweet?.public_metrics?.retweet_count || tweet.public_metrics.retweet_count) | formatNumber }}</b>
       </div>
       <div class="d-flex justify-content-center align-items-center">
         <ion-icon [name]="liked ? 'heart' : 'heart-outline'" (click)="raiseEvent('like')"></ion-icon>
-        <b class="mx-2">{{ tweet.public_metrics.like_count }}</b>
+        <b class="mx-2">{{ (tweet.retweetedTweet?.public_metrics?.like_count || tweet.public_metrics.like_count) | formatNumber }}</b>
       </div>
     </ion-card-content>
     <ion-card-subtitle class="time">

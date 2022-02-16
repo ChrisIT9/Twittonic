@@ -1,5 +1,11 @@
 import { HTMLObject } from "./HTMLObject";
 
+export interface Media {
+    media_key: string,
+    url: string,
+    type: string
+}
+
 export interface Metrics {
     retweet_count: number,
     reply_count: number,
@@ -17,6 +23,13 @@ export interface Tweet {
     id: string;
     reply_settings: string;
     in_reply_to_user_id: string;
+    referenced_tweets?: {
+        type: string,
+        id: string
+    }[],
+    attachments?: {
+        media_keys: string[]
+    }
 }
 
 export interface User {
@@ -28,7 +41,9 @@ export interface User {
 }
 
 export interface Includes {
-    users: User[];
+    users?: User[];
+    tweets?: Tweet[],
+    media: Media[]
 }
 
 export interface Error {
@@ -55,11 +70,20 @@ export interface TweetsResponse {
     meta: Meta;
 }
 
+export interface TweetResponse {
+    data: Tweet;
+    includes: Includes;
+    errors: Error[];
+    meta: Meta;
+}
+
 export interface ExpandedTweet extends Tweet {
     name?: string,
     username?: string,
     profile_image_url?: string,
-    htmlObjects?: HTMLObject[]
+    htmlObjects?: HTMLObject[],
+    mediaUrl?: string[],
+    retweetedTweet?: Tweet
 }
 
 export interface TweetLikeResponse {

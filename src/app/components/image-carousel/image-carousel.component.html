@@ -1,0 +1,5 @@
+<div class="image-container">
+  <img [src]="currentUrl" class="w-100 image">
+  <ion-icon class="back" name="arrow-back-circle" (click)="previous()" *ngIf="imageUrls.length > 1"></ion-icon>
+  <ion-icon class="forward" name="arrow-forward-circle" (click)="next()" *ngIf="imageUrls.length > 1"></ion-icon>
+</div>
