@@ -15,8 +15,9 @@
       <a class="m-2" href="https://www.twitter.com/{{tweet.username}}/status/{{tweet.id}}" target="_blank"><ion-icon name="open-outline"></ion-icon></a>
     </ion-card-title>
     <ion-card-content class="px-1 py-4 tweet-content">
-      <ion-card-subtitle *ngIf="tweet?.referenced_tweets && tweet.referenced_tweets[0].type === 'retweeted'">
-        <b class="d-flex justify-content-start align-items-center"> <ion-icon name="repeat-outline" class="mx-1"></ion-icon> Ha ritwittato </b>
+      <span *ngIf="tweet?.referenced_tweets && tweet.referenced_tweets[0].type === 'quoted'"> <b> {{ tweet.text }} </b> </span>
+      <ion-card-subtitle *ngIf="tweet?.referenced_tweets && (tweet.referenced_tweets[0].type === 'retweeted' || tweet.referenced_tweets[0].type === 'quoted') ">
+        <b class="d-flex justify-content-start align-items-center"> <ion-icon name="repeat-outline" class="mx-1"></ion-icon> Ha ritwittato {{ tweet.quotedUsername }} </b>
       </ion-card-subtitle>
       <ng-container class="w-100" *ngFor="let htmlObject of tweet.htmlObjects">
         <ng-container *ngIf="!htmlObject.transform">
@@ -26,7 +27,7 @@
           {{ htmlObject.content }}
         </a>
       </ng-container> 
-      <app-image-carousel *ngIf="tweet.retweetedTweet?.attachments" [imageUrls]="tweet.mediaUrl"></app-image-carousel>
+      <app-image-carousel *ngIf="tweet.mediaUrl" [imageUrls]="tweet.mediaUrl"></app-image-carousel>
     </ion-card-content>
     <ion-card-content class="px-1 py-0 d-flex justify-content-evenly align-items-center metrics">
       <div class="d-flex justify-content-center align-items-center">

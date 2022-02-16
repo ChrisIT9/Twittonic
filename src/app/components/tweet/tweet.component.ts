@@ -16,7 +16,8 @@ export class TweetComponent implements OnInit {
   constructor(private twitterService: TwitterService) { }
 
   ngOnInit() {
-    this.retweeted = this.tweet?.referenced_tweets && this.tweet.referenced_tweets[0].type === 'retweeted'
+    this.retweeted = this.tweet?.referenced_tweets && this.tweet.referenced_tweets[0].type === 'retweeted';
+    console.log(this.tweet);
   }
 
   toggleLike() {

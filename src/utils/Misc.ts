@@ -1,25 +1,49 @@
 import { TwitterService } from "src/app/services/twitter.service";
 import { HTMLObject } from "src/app/typings/HTMLObject";
-import { ExpandedTweet, Tweet, TweetsResponse } from "src/app/typings/Tweets";
+import { ExpandedTweet, Includes, Tweet, TweetsResponse } from "src/app/typings/Tweets";
+
+const getOriginalTweetId = (tweet: Tweet, includes: Includes): { source: string, target?: string } => {
+    if (!tweet.referenced_tweets) return { source: tweet.id, target: undefined };
+    const includedTweet = includes.tweets.find(tweetItem => tweetItem.id === tweet.referenced_tweets[0].id);
+    if (!includedTweet) return { source: tweet.id, target: tweet.referenced_tweets[0].id };
+    return getOriginalTweetId(includedTweet, includes);
+}
 
 export const getExpandedTweets = async (tweetsResponse: TweetsResponse, twitterService: TwitterService): Promise<ExpandedTweet[]> => {
     return Promise.all(tweetsResponse.data.map(async tweet => {
         let retweetedTweet: Tweet | undefined = undefined;
         let mediaUrl: string[] | undefined = undefined;
+        let quotedUsername: string | undefined = undefined;
 
         if (tweet.referenced_tweets) {
-            if (tweet.referenced_tweets[0].type === "retweeted") {
-                const referencedTweetId = tweet.referenced_tweets[0].id;
-                const foundTweet = tweetsResponse.includes.tweets.find(item => item.id === referencedTweetId);
-                if (foundTweet?.attachments?.media_keys?.length > 0) {
-                    const referencedTweetResponse = await twitterService.getTweetById(referencedTweetId).toPromise();
+            if (tweet.referenced_tweets[0].type === "retweeted" || tweet.referenced_tweets[0].type === "quoted") {
+                const { source, target } = getOriginalTweetId(tweet, tweetsResponse.includes);
+                if (source && !target) {
+                    const foundTweet = tweetsResponse.includes.tweets.find(tweetItem => tweetItem.id === source);
+                    const referencedTweetResponse = await twitterService.getTweetById(source).toPromise();
                     retweetedTweet = referencedTweetResponse.data;
-                    mediaUrl = retweetedTweet.attachments.media_keys.reduce((acc, mediaKey) => {
-                        const { url } = referencedTweetResponse.includes.media.find(item => item.media_key === mediaKey);
+                    let quotedUser = referencedTweetResponse.includes.users.find(item => item.id === retweetedTweet.author_id);
+                    quotedUsername = quotedUser.username;
+                    if (foundTweet?.attachments?.media_keys?.length > 0) {
+                        mediaUrl = retweetedTweet.attachments.media_keys.reduce((acc, mediaKey) => {
+                            const { url } = referencedTweetResponse.includes.media.find(item => item.media_key === mediaKey);
+                            if (url) acc.push(url);
+                            return acc; 
+                        }, [] as string[])
+                    }
+                } else if (source && target) {
+                    const referencedTweetResponse = await twitterService.getTweetById(target).toPromise();
+                    const quotedTweet = tweetsResponse.includes.tweets.find(tweet => tweet.id === source);
+                    const quotedUser = tweetsResponse.includes.users.find(user => user.id === quotedTweet.author_id);
+                    quotedUsername = quotedUser.username; 
+                    retweetedTweet = tweetsResponse.includes.tweets.find(tweetItem => tweetItem.id === source);
+                    mediaUrl = referencedTweetResponse.data.attachments.media_keys.reduce((acc, item) => {
+                        const { url } = referencedTweetResponse.includes.media.find(media => media.media_key === item);
                         if (url) acc.push(url);
-                        return acc; 
+                        return acc;
                     }, [] as string[])
                 }
+                
             }
         }
 
@@ -37,6 +61,6 @@ export const getExpandedTweets = async (tweetsResponse: TweetsResponse, twitterS
         });
 
         const { username, name, profile_image_url } = tweetsResponse.includes.users.find(user => user.id === tweet.author_id);
-        return { ...tweet, htmlObjects, username, name, profile_image_url, mediaUrl, retweetedTweet };
+        return { ...tweet, htmlObjects, username, name, profile_image_url, mediaUrl, retweetedTweet, quotedUsername };
     }));
 }
