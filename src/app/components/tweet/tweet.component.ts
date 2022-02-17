@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { TwitterService } from 'src/app/services/twitter.service';
 import { ExpandedTweet } from 'src/app/typings/Tweets';
+import { QuoteModalComponent } from '../quote-modal/quote-modal.component';
 
 @Component({
   selector: 'app-tweet',
@@ -10,14 +12,14 @@ import { ExpandedTweet } from 'src/app/typings/Tweets';
 export class TweetComponent implements OnInit {
   @Input() tweet: ExpandedTweet;
   @Input() liked: boolean;
+  @Input() userId: string | number;
   @Output() tweetEvent = new EventEmitter();
   retweeted: boolean;
   
-  constructor(private twitterService: TwitterService) { }
+  constructor(private modalController: ModalController, private popoverController: PopoverController) { }
 
   ngOnInit() {
     this.retweeted = this.tweet?.referenced_tweets && this.tweet.referenced_tweets[0].type === 'retweeted';
-    console.log(this.tweet);
   }
 
   toggleLike() {
@@ -26,17 +28,28 @@ export class TweetComponent implements OnInit {
   }
 
   toggleRetweet() {
+    (this.tweet.retweetedTweet || this.tweet).public_metrics.retweet_count += this.retweeted ? -1 : 1;
     this.retweeted = !this.retweeted;
   }
 
-  raiseEvent(type: "like" | "retweet" | "quote") {
+  async raiseEvent(type: "like" | "retweet" | "quote") {
     if (type === "like") {
       if (this.liked) this.tweetEvent.emit({ type: "unlike", activatedTweet: this });
       else this.tweetEvent.emit({ type, activatedTweet: this });
       this.toggleLike();
     } 
     if (type === "retweet") {
-      this.toggleRetweet();
+      if (this.retweeted) this.tweetEvent.emit({ type: "unretweet", activatedTweet: this });
+      else {
+        const modal = await this.modalController.create({
+          component: QuoteModalComponent,
+          componentProps: { tweetId: (this.tweet.retweetedTweet?.id || this.tweet.id), userId: this.userId, username: this.tweet.username }
+        })
+        await modal.present();
+        const { data } = await modal.onWillDismiss();
+        if (data.updateCounter) this.toggleRetweet();
+        if (data.success) this.tweetEvent.emit({ type: "retweet" });
+      }
     }
   }
 

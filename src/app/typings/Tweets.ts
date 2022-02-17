@@ -81,8 +81,9 @@ export interface ExpandedTweet extends Tweet {
     name?: string,
     username?: string,
     profile_image_url?: string,
-    htmlObjects?: HTMLObject[],
-    mediaUrl?: string[],
+    sourceHtmlObjects?: HTMLObject[],
+    retweetHtmlObjects?: HTMLObject[],
+    mediaUrl?: { url: string, type: string }[],
     retweetedTweet?: Tweet,
     quotedUser?: User
 }

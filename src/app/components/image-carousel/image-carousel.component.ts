@@ -6,28 +6,32 @@ import { Component, Input, OnInit } from '@angular/core';
   styleUrls: ['./image-carousel.component.scss'],
 })
 export class ImageCarouselComponent implements OnInit {
-  @Input() imageUrls: string[];
+  @Input() mediaUrls: { url: string, type: string }[];
   currentUrl: string;
   currentIndex: number;
   constructor() { }
 
   ngOnInit() {
-    this.currentUrl = this.imageUrls[0];
+    this.currentUrl = this.mediaUrls[0]?.url;
     this.currentIndex = 0;
   }
 
   next() {
-    if (this.currentIndex === this.imageUrls.length - 1) this.currentIndex = 0;
+    if (this.currentIndex === this.mediaUrls.length - 1) this.currentIndex = 0;
     else this.currentIndex++;
 
-    this.currentUrl = this.imageUrls[this.currentIndex];
+    this.currentUrl = this.mediaUrls[this.currentIndex].url;
   }
 
   previous() {
-    if (this.currentIndex === 0) this.currentIndex = this.imageUrls.length - 1;
+    if (this.currentIndex === 0) this.currentIndex = this.mediaUrls.length - 1;
     else this.currentIndex--;
 
-    this.currentUrl = this.imageUrls[this.currentIndex];
+    this.currentUrl = this.mediaUrls[this.currentIndex].url;
+  }
+
+  isVideo(url: string) {
+    return url?.endsWith("mp4");
   }
 
 }

@@ -7,16 +7,20 @@ import { SettingsPopoverComponent } from 'src/app/components/settings-popover/se
 import { RouterModule } from '@angular/router';
 import { ImageCarouselComponent } from 'src/app/components/image-carousel/image-carousel.component';
 import { FormattedHtmlObjectsComponent } from 'src/app/components/formatted-html-objects/formatted-html-objects.component';
+import { UserProfileComponent } from 'src/app/components/user-profile/user-profile.component';
+import { FormsModule } from '@angular/forms';
+import { QuoteModalComponent } from 'src/app/components/quote-modal/quote-modal.component';
 
 
 @NgModule({
-  declarations: [TweetComponent, SettingsPopoverComponent, ImageCarouselComponent, FormattedHtmlObjectsComponent],
+  declarations: [TweetComponent, SettingsPopoverComponent, ImageCarouselComponent, FormattedHtmlObjectsComponent, UserProfileComponent, QuoteModalComponent],
   imports: [
     CommonModule,
     IonicModule,
     CustomPipesModule,
-    RouterModule
+    RouterModule,
+    FormsModule
   ],
-  exports: [TweetComponent, SettingsPopoverComponent, ImageCarouselComponent, FormattedHtmlObjectsComponent]
+  exports: [TweetComponent, SettingsPopoverComponent, ImageCarouselComponent, FormattedHtmlObjectsComponent, UserProfileComponent, QuoteModalComponent]
 })
 export class CustomComponentsModule { }

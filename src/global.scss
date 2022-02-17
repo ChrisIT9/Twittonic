@@ -45,6 +45,10 @@
     width: 100%;
 }
 
+.secondary {
+    color: var(--ion-color-secondary);
+}
+
 @media screen and (min-width: 992px) {
     .w-lg-50 {
         width: 50%;

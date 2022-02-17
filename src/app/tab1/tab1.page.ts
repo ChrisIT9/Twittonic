@@ -28,6 +28,7 @@ export class Tab1Page implements OnInit {
   likedTweetsAlreadyLoaded = false;
   paginationToken: string;
   infiniteScrollTarget: any;
+  timeoutId: any | undefined = undefined;
 
   constructor(private indexedDB: IndexedDBService, 
     private eventsBroadcaster: EventsBroadcasterService, 
@@ -155,7 +156,8 @@ export class Tab1Page implements OnInit {
         this.tweetSending = false;
         this.tweetContent = undefined;
         this.presentSuccessToast("Tweet postato correttamente!<br>Il feed verrà aggiornato tra 10 secondi."); 
-        setTimeout(this.getUserData.bind(this), 10000);
+        if (this.timeoutId) clearTimeout(this.timeoutId);
+        this.timeoutId = setTimeout(this.getUserData.bind(this), 10000);
       }).bind(this), 
       error: (() => { 
         this.tweetSending = false;
@@ -259,6 +261,24 @@ export class Tab1Page implements OnInit {
             activatedTweet.toggleLike();
           }).bind(this)
         })
+        break;
+      case "unretweet":
+        this.twitterService.deleteRetweet(this.userInfo.id, (activatedTweet.tweet.retweetedTweet?.id || activatedTweet.tweet.id)).subscribe({
+          next: ((_: any) => {
+            activatedTweet.toggleRetweet();
+            this.presentSuccessToast("Il feed verrà aggiornato tra 10 secondi."); 
+            if (this.timeoutId) clearTimeout(this.timeoutId);
+            this.timeoutId = setTimeout(this.getUserData.bind(this), 10000);
+          }).bind(this),
+          error: ((_: any) => {
+            this.presentErrorToast("Qualcosa è andato storto", 500);
+          }).bind(this)
+        })
+        break;
+      case "retweet":
+        this.presentSuccessToast("Il feed verrà aggiornato tra 10 secondi."); 
+        if (this.timeoutId) clearTimeout(this.timeoutId);
+        this.timeoutId = setTimeout(this.getUserData.bind(this), 10000);
         break;
       default:
         break;

@@ -13,6 +13,9 @@ import { IndexedDBService } from './indexed-db.service';
 })
 export class TwitterService {
 
+  jsonHeader = { "Content-Type": "application/json" };
+  urlEncodedHeader = { "Content-Type": "application/x-www-form-urlencoded" }
+
   constructor(private httpClient: HttpClient, private indexedDB: IndexedDBService) { }
 
   async getTokens(code: string) {
@@ -29,7 +32,7 @@ export class TwitterService {
       `${environment.reverseProxyUrl}/${environment.twitterEndpoint}/oauth2/token`, 
       body.toString(),
       {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+        headers: this.urlEncodedHeader
       }
     );
   }
@@ -47,7 +50,7 @@ export class TwitterService {
       `${environment.reverseProxyUrl}/${environment.twitterEndpoint}/oauth2/token`, 
       body.toString(),
       {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+        headers: this.urlEncodedHeader
       }
     );
   }
@@ -69,7 +72,7 @@ export class TwitterService {
       `${environment.reverseProxyUrl}/${environment.twitterEndpoint}/tweets`, 
       JSON.stringify(tweet),
       {
-        headers: { "Content-Type": "application/json" }
+        headers: this.jsonHeader
       }
     );
   }
@@ -110,7 +113,7 @@ export class TwitterService {
         `${environment.reverseProxyUrl}/${environment.twitterEndpoint}/oauth2/revoke`, 
         body.toString(),
         {
-          headers: { "Content-Type": "application/x-www-form-urlencoded" }
+          headers: this.urlEncodedHeader
         }
       )];
     }, [] as Observable<Object>[])
@@ -125,7 +128,7 @@ export class TwitterService {
       ${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${userId}/likes`, 
       { tweet_id: tweetId },
       {
-        headers: { "Content-Type": "application/json" }
+        headers: this.jsonHeader
       }
     )
   }
@@ -134,8 +137,26 @@ export class TwitterService {
     return this.httpClient.delete<TweetLikeResponse>(`
       ${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${userId}/likes/${tweetId}`, 
       {
-        headers: { "Content-Type": "application/json" }
+        headers: this.jsonHeader
       }
     )
+  }
+
+  retweetTweet(userId: string | number, tweetId: string | number) {
+    return this.httpClient.post(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${userId}/retweets`, { tweet_id: tweetId }, {
+      headers: this.jsonHeader
+    })
+  }
+
+  quoteTweet(tweetId: string | number, tweetContent: string) {
+    return this.httpClient.post(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/tweets`, { text: tweetContent, quote_tweet_id: tweetId }, {
+      headers: this.jsonHeader
+    })
+  }
+
+  deleteRetweet(userId: string | number, tweetId: string | number) {
+    return this.httpClient.delete(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${userId}/retweets/${tweetId}`, {
+      headers: this.jsonHeader
+    })
   }
 }
