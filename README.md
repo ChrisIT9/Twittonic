@@ -8,17 +8,17 @@ Supported features:
 - [X] Logout and token revoking
 - [ ] Advanced tweeting capabilities
   - [ ] Deleting tweets
-  - [ ] Retweeting
+  - [X] Retweeting
   - [X] Liking
-  - [ ] Quoting
+  - [X] Quoting
   - [ ] Media attachments
 - [ ] More details per tweet (when available)
   - [ ] Seeing tagged user (if any)
   - [ ] Seeing full thread
   - [ ] Replies
-  - [ ] Media attachments
-  - [ ] Retweets
-  - [ ] Quotes
+  - [X] Media attachments
+  - [X] Retweets
+  - [X] Quotes
 - [X] Support for #hashtags and @ats
 - [ ] Support for interactions with other users (eg. following someone)
 - [ ] In-detail pages for tweets and users
