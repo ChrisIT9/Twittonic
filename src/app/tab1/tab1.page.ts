@@ -6,10 +6,9 @@ import { IndexedDBService } from '../services/indexed-db.service';
 import { TwitterService } from '../services/twitter.service';
 import { User, UserResponse } from '../typings/TwitterUsers';
 import { PopoverController, ToastController } from '@ionic/angular';
-import { ExpandedTweet, Tweet, TweetLikeResponse, TweetsResponse } from '../typings/Tweets';
+import { ExpandedTweet, Tweet, TweetsResponse } from '../typings/Tweets';
 import { getExpandedTweets } from 'src/utils/Misc';
 import { SettingsPopoverComponent } from '../components/settings-popover/settings-popover.component';
-import { TweetEvent } from '../typings/Events';
 
 @Component({
   selector: 'app-tab1',
@@ -39,8 +38,9 @@ export class Tab1Page implements OnInit {
   }
   
   ngOnInit(): void {
-    this.getUserData();
-    this.eventsBroadcaster.authEventsObservable.subscribe(async ({ type, success }) => {
+    this.userInfoLoading = true;
+
+    this.eventsBroadcaster.authEventsObservable.subscribe(async ({ type, success, likedTweets, userInfo }) => {
       if (type === "logout") {
         this.userInfo = undefined;
         this.ownTweets = [];
@@ -48,6 +48,13 @@ export class Tab1Page implements OnInit {
         if (success) this.presentSuccessToast("Disconnessione effettuata con successo.");
         else this.presentErrorToast("Errore durante la disconnessione!");
       }
+
+      if (type === "firstLogin" && success && likedTweets && userInfo) {
+        this.likedTweets = likedTweets;
+        this.userInfo = userInfo;
+        this.userInfoLoading = false;
+        this.getOwnTweets();
+      } else if (type === "firstLogin" && !success) this.userInfoLoading = false;
     })
 
     this.eventsBroadcaster.tokenEventsObservable.subscribe(async ({ type, success }) => {
@@ -61,6 +68,13 @@ export class Tab1Page implements OnInit {
       }
       if (type === "refreshed" && success) {
         this.presentSuccessToast("I token sono stati aggiornati!", 1000);
+      }
+    })
+
+    this.eventsBroadcaster.tweetEventsObservable.subscribe(({ type, done }) => {
+      if ((type === "retweet" || type === "unretweet" || type === "reply") && done) {
+        if (this.timeoutId) clearTimeout(this.timeoutId);
+        this.timeoutId = setTimeout(this.getUserData.bind(this), 10000);
       }
     })
   }
@@ -86,10 +100,12 @@ export class Tab1Page implements OnInit {
   async getUserData(ev?: any) {
     this.paginationToken = undefined;
     this.userInfoLoading = true;
+
     if (this.infiniteScrollTarget !== undefined) {
       this.infiniteScrollTarget.disabled = false;
       this.infiniteScrollTarget = undefined;
     } 
+
     const accessToken = (await this.indexedDB.readFile({ path: "twittonic/accessToken" })).data;
 
     if (!accessToken) {
@@ -102,13 +118,12 @@ export class Tab1Page implements OnInit {
       
     this.twitterService.getMe().subscribe({ 
       next: ((res: UserResponse) => {
-      this.eventsBroadcaster.newAuthEvent({ type: "session", success: true });
-      this.userInfoLoading = false;
-      this.userInfo = res.data;
-      this.ownTweets.splice(0);
-      this.getOwnTweets();
-      if (!this.likedTweetsAlreadyLoaded) this.getLikedTweets();
-      if (ev) ev.target.complete();
+        this.userInfoLoading = false;
+        this.userInfo = res.data;
+        this.eventsBroadcaster.newAuthEvent({ type: "session", success: true });
+        this.ownTweets.splice(0);
+        this.getOwnTweets();
+        if (ev) ev.target.complete();
       }).bind(this),
       error: (async (_: any) => {
         this.presentErrorToast("Errore durante l'aggiornamento del feed!", 500);
@@ -208,81 +223,10 @@ export class Tab1Page implements OnInit {
     await popover.present();
   }
 
-  async getLikedTweets(paginationToken?: string) {
-    const accessToken = (await this.indexedDB.readFile({ path: "twittonic/accessToken" })).data;
-
-    if (!accessToken) return;
-
-    this.twitterService.getTweetsLikedByUser(this.userInfo.id, paginationToken).subscribe({ 
-      next: ((res: Pick<TweetsResponse, 'data' | 'meta'>) => {
-        this.likedTweetsAlreadyLoaded = true;
-        res.data.length > 0 && this.likedTweets.push(...res.data);
-        if (res.meta.result_count === 100 && res.meta.next_token) this.getLikedTweets(res.meta.next_token);
-      }).bind(this),
-      error: ((_) => {
-        this.presentErrorToast("Qualcosa è andato storto.");
-      }).bind(this)
-    })
-  }
-
   tweetHasBeenLiked(tweet: Tweet) {
     return this.likedTweets.some(likedTweet => {
-      return likedTweet.id === tweet.id || (tweet.referenced_tweets && tweet.referenced_tweets[0].id === likedTweet.id)
+      return likedTweet.id === tweet.id || (tweet.referenced_tweets && tweet.referenced_tweets[0].type === "retweeted" && tweet.referenced_tweets[0].id === likedTweet.id)
     });
-  }
-
-  handleTweetEvent({ type, activatedTweet }: TweetEvent) {
-    switch(type) {
-      case "like":
-        this.twitterService.likeTweet(this.userInfo.id, activatedTweet.tweet.id).subscribe({
-          next: ((_: TweetLikeResponse) => {
-            if (activatedTweet.tweet.referenced_tweets) 
-              this.likedTweets.push(activatedTweet.tweet.referenced_tweets[0])
-            else this.likedTweets.push(activatedTweet.tweet);
-          }).bind(this),
-          error: ((_: any) => {
-            this.presentErrorToast("Qualcosa è andato storto", 500);
-            activatedTweet.toggleLike();
-          }).bind(this)
-        })
-        break;
-      case "unlike":
-        this.twitterService.unlikeTweet(this.userInfo.id, activatedTweet.tweet.id).subscribe({
-          next: ((_: TweetLikeResponse) => {
-            let tweetIndex: number;
-            if (activatedTweet.tweet.referenced_tweets) {
-              tweetIndex = this.likedTweets.findIndex(item => activatedTweet.tweet.referenced_tweets[0].id === item.id);
-            }
-            else tweetIndex = this.likedTweets.findIndex(item => item.id === activatedTweet.tweet.id)
-            this.likedTweets.splice(tweetIndex, 1);
-          }).bind(this),
-          error: ((_: any) => {
-            this.presentErrorToast("Qualcosa è andato storto", 500);
-            activatedTweet.toggleLike();
-          }).bind(this)
-        })
-        break;
-      case "unretweet":
-        this.twitterService.deleteRetweet(this.userInfo.id, (activatedTweet.tweet.retweetedTweet?.id || activatedTweet.tweet.id)).subscribe({
-          next: ((_: any) => {
-            activatedTweet.toggleRetweet();
-            this.presentSuccessToast("Il feed verrà aggiornato tra 10 secondi."); 
-            if (this.timeoutId) clearTimeout(this.timeoutId);
-            this.timeoutId = setTimeout(this.getUserData.bind(this), 10000);
-          }).bind(this),
-          error: ((_: any) => {
-            this.presentErrorToast("Qualcosa è andato storto", 500);
-          }).bind(this)
-        })
-        break;
-      case "retweet":
-        this.presentSuccessToast("Il feed verrà aggiornato tra 10 secondi."); 
-        if (this.timeoutId) clearTimeout(this.timeoutId);
-        this.timeoutId = setTimeout(this.getUserData.bind(this), 10000);
-        break;
-      default:
-        break;
-    }
   }
 
 }

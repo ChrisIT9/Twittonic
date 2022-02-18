@@ -1,12 +1,12 @@
 <div class="d-flex flex-column justify-content-center align-items-end p-2 h-100">
   <ion-item class="br-4px mt-5 tweet-box-container w-100">
-    <ion-textarea class="w-100 h-100" [(ngModel)]="tweetContent" rows="12" placeholder="Rispondi a @{{ username }}" maxlength="280" minlength="0">
+    <ion-textarea class="w-100 h-100" [(ngModel)]="tweetContent" rows="12" placeholder="Twitta la tua risposta" maxlength="280" minlength="{{ replyType === 'retweet' ? '0' : '1' }}">
     </ion-textarea>
   </ion-item>
   <div class="d-flex justify-content-center align-items-center">
     <span *ngIf="tweetContent" class="mx-1 white">{{ tweetContent?.length }}/280</span>
-    <ion-button class="tertiary fw-bold text-uppercase my-2" (click)="postTweet()">
-      <span *ngIf="!tweetSending" class="mx-2">{{ tweetContent?.length ? "Cita tweet" : "Ritwitta" }}</span>
+    <ion-button class="tertiary fw-bold text-uppercase my-2" (click)="postTweet()" [disabled]="(replyType === 'reply' && !tweetContent)">
+      <span *ngIf="!tweetSending" class="mx-2">{{ replyType === "retweet" ? (tweetContent?.length ? "Cita tweet" : "Ritwitta") : "Rispondi" }}</span>
       <ion-icon *ngIf="!tweetSending" name="send"></ion-icon>
       <ion-spinner *ngIf="tweetSending" name="lines"></ion-spinner>
     </ion-button>

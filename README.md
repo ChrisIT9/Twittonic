@@ -11,12 +11,12 @@ Supported features:
   - [X] Retweeting
   - [X] Liking
   - [X] Quoting
+  - [X] Replying
   - [ ] Media attachments
-- [ ] More details per tweet (when available)
-  - [ ] Seeing tagged user (if any)
-  - [ ] Seeing full thread
-  - [ ] Replies
-  - [X] Media attachments
+- [X] More details per tweet (when available)
+  - [X] Seeing tagged user (if any) (kinda)
+  - [X] Replies (again, kinda)
+  - [X] Media attachments (only images are served by the API unfortunately)
   - [X] Retweets
   - [X] Quotes
 - [X] Support for #hashtags and @ats

@@ -1,6 +1,7 @@
 .image-container {
     width: 100%;
     position: relative;
+    margin-top: 10px;
 }
 
 .media {
@@ -10,30 +11,50 @@
 
 .back {
     position: absolute;
-    top: 50%;
-    left: 10px;
+    top: 0px;
+    left: 0px;
     z-index: 1;
-    cursor: pointer;
-    transition: 0.2s ease-in-out all;
-    font-size: 32px;
-    color: black;
+    display: flex;
+    flex-flow: column wrap;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.35);
+    padding: 0 2.5px;
 
-    &:hover {
-        transform: scale(1.25);
+    .back-button {
+        transition: 0.2s ease-in-out all;
+        font-size: 32px;
+        color: #dddddd;
+        cursor: pointer;
+
+        &:hover {
+            transform: scale(1.25);
+        }
     }
+    
 }
 
 .forward {
     position: absolute;
-    top: 50%;
-    right: 10px;
+    top: 0;
+    right: 0;
     z-index: 1;
-    cursor: pointer;
-    transition: 0.2s ease-in-out all;
-    font-size: 32px;
-    color: black;
+    display: flex;
+    flex-flow: column wrap;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.35);
+    padding: 0 2.5px;
 
-    &:hover {
-        transform: scale(1.25);
+    .forward-button {
+        transition: 0.2s ease-in-out all;
+        font-size: 32px;
+        color: #dddddd;
+        cursor: pointer;
+
+        &:hover {
+            transform: scale(1.25);
+        }
     }
+    
 }

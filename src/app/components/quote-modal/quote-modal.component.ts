@@ -10,9 +10,9 @@ import { TwitterService } from 'src/app/services/twitter.service';
 export class QuoteModalComponent implements OnInit {
   tweetContent: string | undefined = undefined;
   tweetSending: boolean = false;
+  @Input() replyType: "retweet" | "reply";
   @Input() userId: string | number;
   @Input() tweetId: string | number;
-  @Input() username: string;
 
   constructor(private modalController: ModalController, 
     private twitterService: TwitterService, 
@@ -22,22 +22,33 @@ export class QuoteModalComponent implements OnInit {
   ngOnInit() {}
 
   postTweet() {
-    if (this.tweetContent === undefined || !this.tweetContent.trim().length) {
-      this.twitterService.retweetTweet(this.userId, this.tweetId).subscribe({
-        next: ((_) => {
-          this.modalController.dismiss({ success: true, updateCounter: true });
-        }).bind(this),
-        error: ((_) => {
-          this.toastController.create({ message: "Qualcosa è andato storto", color: "danger", duration: 1000, position: "top" });
-        }).bind(this)
-      })
+    if (this.replyType === "retweet") {
+      if (this.tweetContent === undefined || !this.tweetContent.trim().length) {
+        this.twitterService.retweetTweet(this.userId, this.tweetId).subscribe({
+          next: ((_) => {
+            this.modalController.dismiss({ success: true, updateCounter: true });
+          }).bind(this),
+          error: ((_) => {
+            this.toastController.create({ message: "Qualcosa è andato storto.", color: "danger", duration: 1000, position: "top" });
+          }).bind(this)
+        })
+      } else {
+        this.twitterService.quoteTweet(this.tweetId, this.tweetContent).subscribe({
+          next: ((_) => {
+            this.modalController.dismiss({ success: true, updateCounter: false });
+          }).bind(this),
+          error: ((_) => {
+            this.toastController.create({ message: "Qualcosa è andato storto.", color: "danger", duration: 1000, position: "top" });
+          }).bind(this)
+        })
+      }
     } else {
-      this.twitterService.quoteTweet(this.tweetId, this.tweetContent).subscribe({
+      this.twitterService.replyToTweet(this.tweetId, this.tweetContent).subscribe({
         next: ((_) => {
-          this.modalController.dismiss({ success: true, updateCounter: false });
+          this.modalController.dismiss({ success: true });
         }).bind(this),
         error: ((_) => {
-          this.toastController.create({ message: "Qualcosa è andato storto", color: "danger", duration: 1000, position: "top" });
+          this.toastController.create({ message: "Qualcosa è andato storto.", color: "danger", duration: 1000, position: "top" });
         }).bind(this)
       })
     }

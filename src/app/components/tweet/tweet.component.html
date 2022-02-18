@@ -5,7 +5,7 @@
         <img class="br-100 mx-2" [src]="tweet.profile_image_url">
         <div>
           <b class="text-break">{{ tweet.name | trimWord }}</b>
-          <ion-card-subtitle class="w-100 my-1 text-break secondary">
+          <ion-card-subtitle class="w-100 my-1 text-break">
             @{{ tweet.username }}
           </ion-card-subtitle>
         </div>
@@ -16,17 +16,17 @@
       <app-formatted-html-objects *ngIf="tweet.sourceHtmlObjects" [htmlObjects]="tweet.sourceHtmlObjects"> 
         <hr class="w-100" *ngIf="tweet.retweetHtmlObjects"> 
       </app-formatted-html-objects>
-      <ion-card-subtitle *ngIf="tweet?.referenced_tweets && (tweet.referenced_tweets[0].type === 'retweeted' || tweet.referenced_tweets[0].type === 'quoted')" class="my-2">
+      <ion-card-subtitle *ngIf="tweet?.referenced_tweets" class="my-2">
         <div class="d-flex flex-column justify-content-between align-items-start"> 
           <b>
             <ion-icon name="repeat-outline" class="mx-1"></ion-icon> 
-            Ha ritwittato
+            {{( tweet.referenced_tweets[0].type === 'retweeted' || tweet.referenced_tweets[0].type === 'quoted' ? "Ha ritwittato" : "In risposta" ) }}
           </b>
           <a class="d-flex clickable justify-content-start align-items-center my-2" href="https://www.twitter.com/{{tweet.quotedUser.username}}" target="_blank">
             <img [src]="tweet.quotedUser.profile_image_url" class="br-100">
             <div class="mx-2 d-flex flex-column justify-content-between align-items-start">
-              <span class="d-flex justify-content-center align-items-center"> {{ tweet.quotedUser.name | trimWord }} <ion-icon name="checkmark-circle" *ngIf="tweet.quotedUser.verified" class="mx-1"></ion-icon> </span>
-              <span> @{{ tweet.quotedUser.username }} </span>
+              <span class="d-flex justify-content-center align-items-center text-break"> {{ tweet.quotedUser.name | trimWord }} <ion-icon name="checkmark-circle" *ngIf="tweet.quotedUser.verified" class="mx-1"></ion-icon> </span>
+              <ion-card-subtitle class="text-break"> @{{ tweet.quotedUser.username }} </ion-card-subtitle>
             </div>
           </a>
         </div>
@@ -36,20 +36,20 @@
     </ion-card-content>
     <ion-card-content class="px-1 py-0 d-flex justify-content-evenly align-items-center metrics">
       <div class="d-flex justify-content-center align-items-center">
-        <ion-icon name="chatbubble-outline" (click)="raiseEvent('quote')"></ion-icon>
-        <b class="mx-2">{{ (tweet.retweetedTweet?.public_metrics?.reply_count ||  tweet.public_metrics.reply_count) | formatNumber }}</b>
+        <ion-icon name="chatbubble-outline" (click)="raiseEvent('reply')"></ion-icon>
+        <b class="mx-2">{{ publicMetrics.reply_count | formatNumber }}</b>
       </div>
       <div class="d-flex justify-content-center align-items-center">
         <ion-icon name="repeat-outline" (click)="raiseEvent('retweet')" [ngClass]="{'green': retweeted}"></ion-icon>
-        <b class="mx-2">{{ (tweet.retweetedTweet?.public_metrics?.retweet_count || tweet.public_metrics.retweet_count) | formatNumber }}</b>
+        <b class="mx-2">{{ publicMetrics.retweet_count | formatNumber }}</b>
       </div>
       <div class="d-flex justify-content-center align-items-center">
         <ion-icon [name]="liked ? 'heart' : 'heart-outline'" (click)="raiseEvent('like')"></ion-icon>
-        <b class="mx-2">{{ (tweet.retweetedTweet?.public_metrics?.like_count || tweet.public_metrics.like_count) | formatNumber }}</b>
+        <b class="mx-2">{{ publicMetrics.like_count | formatNumber }}</b>
       </div>
     </ion-card-content>
     <ion-card-subtitle class="time">
-      {{ tweet.created_at | dateToTimeElapsed }}
+      <span title="{{ tweet.created_at }}"> {{ tweet.created_at | dateToTimeElapsed }} </span>
     </ion-card-subtitle>
   </ion-card-header>
 </ion-card>

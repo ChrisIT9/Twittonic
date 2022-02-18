@@ -1,6 +1,11 @@
 <div class="image-container">
   <img *ngIf="!isVideo(currentUrl)" [src]="currentUrl" class="w-100 media">
   <video *ngIf="isVideo(currentUrl)" [src]="currentUrl" class="w-100 media" controls></video>
-  <ion-icon class="back" name="arrow-back-circle" (click)="previous()" *ngIf="mediaUrls.length > 1"></ion-icon>
-  <ion-icon class="forward" name="arrow-forward-circle" (click)="next()" *ngIf="mediaUrls.length > 1"></ion-icon>
+  <div class="h-100 back" *ngIf="mediaUrls.length > 1"> 
+    <ion-icon class="back-button" name="chevron-back-outline" (click)="previous()"></ion-icon>
+  </div>
+  <div class="h-100 forward" *ngIf="mediaUrls.length > 1">
+    <ion-icon class="forward-button" name="chevron-forward-outline" (click)="next()"></ion-icon>
+  </div>
+  
 </div>

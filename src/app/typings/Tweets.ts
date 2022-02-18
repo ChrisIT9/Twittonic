@@ -13,6 +13,18 @@ export interface Metrics {
     quote_count: number
 }
 
+export interface Url {
+    start: number;
+    end: number;
+    url: string;
+    expanded_url: string;
+    display_url: string;
+}
+
+export interface Entities {
+    urls: Url[];
+}
+
 export interface Tweet {
     public_metrics: Metrics,
     source: string;
@@ -30,6 +42,7 @@ export interface Tweet {
     attachments?: {
         media_keys: string[]
     }
+    entities?: Entities 
 }
 
 export interface User {
@@ -85,7 +98,8 @@ export interface ExpandedTweet extends Tweet {
     retweetHtmlObjects?: HTMLObject[],
     mediaUrl?: { url: string, type: string }[],
     retweetedTweet?: Tweet,
-    quotedUser?: User
+    quotedUser?: User,
+    intermediaryTweet?: Tweet
 }
 
 export interface TweetLikeResponse {

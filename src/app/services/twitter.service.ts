@@ -159,4 +159,10 @@ export class TwitterService {
       headers: this.jsonHeader
     })
   }
+
+  replyToTweet(tweetId: string | number, tweetContent: string) {
+    return this.httpClient.post(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/tweets`, { text: tweetContent, reply: { in_reply_to_tweet_id: tweetId } }, {
+      headers: this.jsonHeader
+    })
+  }
 }
