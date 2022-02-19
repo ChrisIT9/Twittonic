@@ -24,7 +24,7 @@ export class Tab1Page implements OnInit {
   tweetSending = false;
   tweetsLoading = false;
   likedTweets: Partial<Tweet>[] = [];
-  likedTweetsAlreadyLoaded = false;
+  retweets: Partial<Tweet>[] = [];
   paginationToken: string;
   infiniteScrollTarget: any;
   timeoutId: any | undefined = undefined;
@@ -40,7 +40,7 @@ export class Tab1Page implements OnInit {
   ngOnInit(): void {
     this.userInfoLoading = true;
 
-    this.eventsBroadcaster.authEventsObservable.subscribe(async ({ type, success, likedTweets, userInfo }) => {
+    this.eventsBroadcaster.authEventsObservable.subscribe(async ({ type, success, likedTweets, userInfo, retweets }) => {
       if (type === "logout") {
         this.userInfo = undefined;
         this.ownTweets = [];
@@ -49,8 +49,10 @@ export class Tab1Page implements OnInit {
         else this.presentErrorToast("Errore durante la disconnessione!");
       }
 
-      if (type === "firstLogin" && success && likedTweets && userInfo) {
+      if (type === "firstLogin" && success && likedTweets && userInfo && retweets) {
         this.likedTweets = likedTweets;
+        this.retweets = retweets;
+        console.log(this.retweets);
         this.userInfo = userInfo;
         this.userInfoLoading = false;
         this.getOwnTweets();

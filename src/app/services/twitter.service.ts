@@ -165,4 +165,12 @@ export class TwitterService {
       headers: this.jsonHeader
     })
   }
+
+  getRetweets(userId: string | number, paginationToken?: string) {
+    const expansions = "referenced_tweets.id";
+    const tweetFields = "id,referenced_tweets,entities";
+    const userFields = "id";
+
+    return this.httpClient.get(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${userId}/tweets?expansions=${expansions}&tweet.fields=${tweetFields}&user.fields=${userFields}&exclude=replies&max_results=100${paginationToken ? `&pagination_token=${paginationToken}` : ""}`);
+  }
 }

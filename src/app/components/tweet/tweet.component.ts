@@ -16,7 +16,8 @@ export class TweetComponent implements OnInit {
   @Input() tweet: ExpandedTweet;
   @Input() liked: boolean;
   @Input() userId: string | number;
-  retweeted: boolean;
+  @Input() retweeted: boolean;
+  @Input() retweets: Partial<Tweet>[];
   publicMetrics: Metrics;
   actualTweet: Tweet;
   tweetEventsObservable: Observable<TweetEvent>;
@@ -25,14 +26,12 @@ export class TweetComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.retweeted = this.tweet?.referenced_tweets && this.tweet.referenced_tweets[0].type === 'retweeted';
-
     this.tweetEventsObservable = this.eventsBroadcaster.tweetEventsObservable;
 
     this.tweetEventsObservable.subscribe(({ done, tweetId, type, activatedTweet }) => {
       if (done && tweetId === this.actualTweet?.id && activatedTweet !== this) {
         if (type === "like" || type === "unlike") this.publicMetrics.like_count += this.liked ? -1 : 1;
-        if (type === "retweet" || type === "unretweet") this.publicMetrics.retweet_count += this.retweeted ? -1 : 1;
+        if (type === "retweet" || type === "unretweet") this.toggleRetweet();
         if (type === "reply") this.publicMetrics.reply_count++;
       }
     })
@@ -54,6 +53,8 @@ export class TweetComponent implements OnInit {
       this.publicMetrics = this.tweet.public_metrics;
       this.actualTweet = this.tweet;
     }
+
+    this.retweeted = this.retweets.some(retweet => retweet.id === this.actualTweet.id);
   }
 
   toggleLike() {
@@ -82,7 +83,7 @@ export class TweetComponent implements OnInit {
         await modal.present();
         const { data } = await modal.onWillDismiss();
         if (data?.updateCounter) this.toggleRetweet();
-        if (data?.success) this.eventsBroadcaster.newTweetEvent({ type: "retweet", activatedTweet: this, tweetId: this.actualTweet.id, done: true });
+        if (data?.success) this.eventsBroadcaster.newTweetEvent({ type: "retweet", activatedTweet: this, tweetId: this.actualTweet.id, done: true, update: data?.updateCounter });
       }
     }
     if (type === "reply") {

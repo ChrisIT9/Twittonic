@@ -125,7 +125,7 @@
       <h1 *ngIf="userInfo">I tuoi tweet</h1>
       <ion-spinner *ngIf="tweetsLoading" name="bubbles"></ion-spinner>
       <div class="col-12" *ngFor="let tweet of ownTweets" [ngStyle]="{ 'display': tweetsLoading ? 'none' : 'block' }">
-        <app-tweet [tweet]="tweet" [liked]="tweetHasBeenLiked(tweet)" [userId]="userInfo.id"></app-tweet>
+        <app-tweet [tweet]="tweet" [liked]="tweetHasBeenLiked(tweet)" [retweets]="retweets" [userId]="userInfo.id"></app-tweet>
       </div>
     </div>
 

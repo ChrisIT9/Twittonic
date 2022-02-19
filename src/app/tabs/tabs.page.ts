@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { BreadcrumbCollapsedClickEventDetail, ToastController } from '@ionic/angular';
+import { ToastController } from '@ionic/angular';
+import { getOriginalTweetId } from 'src/utils/Misc';
 import { EventsBroadcasterService } from '../services/events-broadcaster.service';
 import { IndexedDBService } from '../services/indexed-db.service';
 import { TwitterService } from '../services/twitter.service';
@@ -15,7 +16,9 @@ export class TabsPage implements OnInit {
   isLoggedIn = false;
   userId: string;
   likedTweets: Partial<Tweet>[] = [];
+  retweets: Partial<Tweet>[] = [];
   likedTweetsAlreadyLoaded = false;
+  retweetsAlreadyLoaded = false;
   paginationToken: string;
   userInfo: User;
 
@@ -58,7 +61,35 @@ export class TabsPage implements OnInit {
         this.likedTweetsAlreadyLoaded = true;
         res.data.length > 0 && this.likedTweets.push(...res.data);
         if (res.meta.result_count === 100 && res.meta.next_token) this.getLikedTweets(res.meta.next_token);
-        else this.eventsBroadcaster.newAuthEvent({ success: true, type: "firstLogin", likedTweets: this.likedTweets, userInfo: this.userInfo });
+        else !this.retweetsAlreadyLoaded && this.getRetweetedTweets();
+      }).bind(this),
+      error: ((_) => {
+        this.presentErrorToast("Qualcosa è andato storto.");
+        this.eventsBroadcaster.newAuthEvent({ success: false, type: "firstLogin" });
+      }).bind(this)
+    })
+  }
+
+  async getRetweetedTweets(paginationToken?: string) {
+    this.twitterService.getRetweets(this.userId, paginationToken).subscribe({
+      next: ((res: TweetsResponse) => {
+        this.retweetsAlreadyLoaded = true;
+        const suitableTweets = res.data?.filter(tweet => tweet.referenced_tweets && tweet.referenced_tweets[0].type === "retweeted");
+
+        suitableTweets?.map(async tweet => {
+          const intermediaryTweetResponse = await this.twitterService.getTweetById(tweet.referenced_tweets[0].id).toPromise();
+          const intermediaryTweet = intermediaryTweetResponse.data;
+
+          if (!intermediaryTweet.referenced_tweets || (intermediaryTweet.referenced_tweets && intermediaryTweet.referenced_tweets[0].type !== "retweeted"))
+            this.retweets.push(tweet) && this.retweets.push(intermediaryTweet);
+          else {
+            const { source, target } = getOriginalTweetId(tweet, res.includes);
+            this.retweets.push({ id: target || source });
+          }
+        })
+
+        if (res.data.length === 100 && res.meta.next_token) this.getRetweetedTweets(res.meta.next_token);
+        else this.eventsBroadcaster.newAuthEvent({ success: true, type: "firstLogin", likedTweets: this.likedTweets, userInfo: this.userInfo, retweets: this.retweets });
       }).bind(this),
       error: ((_) => {
         this.presentErrorToast("Qualcosa è andato storto.");
@@ -104,7 +135,7 @@ export class TabsPage implements OnInit {
       }
     })
 
-    this.eventsBroadcaster.tweetEventsObservable.subscribe(({ tweetId, type, done, activatedTweet }) => {
+    this.eventsBroadcaster.tweetEventsObservable.subscribe(({ tweetId, type, done, activatedTweet, update }) => {
       switch(type) {
         case "like":
           if (done) break;
@@ -137,6 +168,8 @@ export class TabsPage implements OnInit {
         if (done) break;
         this.twitterService.deleteRetweet(this.userId, activatedTweet.actualTweet.id).subscribe({
           next: ((_: any) => {
+            const tweetIndex = this.retweets.findIndex(retweet => retweet.id === activatedTweet.actualTweet.id);
+            tweetIndex && this.retweets.splice(tweetIndex, 1);
             activatedTweet.toggleRetweet();
             this.presentSuccessToast("Il feed verrà aggiornato tra 10 secondi."); 
             this.eventsBroadcaster.newTweetEvent({ done: true, type, activatedTweet, tweetId: activatedTweet.actualTweet.id });
@@ -148,6 +181,7 @@ export class TabsPage implements OnInit {
         break;
       case "retweet":
         if (!done) break;
+        if (update) this.retweets.push(activatedTweet.actualTweet);
         this.presentSuccessToast("Il feed verrà aggiornato tra 10 secondi."); 
         break;
       case "reply":

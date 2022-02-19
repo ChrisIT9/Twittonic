@@ -2,7 +2,7 @@ import { TwitterService } from "src/app/services/twitter.service";
 import { HTMLObject } from "src/app/typings/HTMLObject";
 import { ExpandedTweet, Includes, Tweet, TweetsResponse, Url, User } from "src/app/typings/Tweets";
 
-const getOriginalTweetId = (tweet: Tweet, includes: Includes): { source: string, target?: string } => {
+export const getOriginalTweetId = (tweet: Tweet, includes: Includes): { source: string, target?: string } => {
     if (!tweet.referenced_tweets) return { source: tweet.id, target: undefined };
     const includedTweet = includes.tweets.find(tweetItem => tweetItem.id === tweet.referenced_tweets[0].id);
     if (!includedTweet) return { source: tweet.id, target: tweet.referenced_tweets[0].id };

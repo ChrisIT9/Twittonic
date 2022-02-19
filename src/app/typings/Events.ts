@@ -7,8 +7,9 @@ export interface AuthEvent {
     message?: string
     success?: boolean,
     userId?: string,
-    likedTweets?: Partial<Tweet>[]
-    userInfo?: User
+    likedTweets?: Partial<Tweet>[],
+    retweets?: Partial<Tweet>[],
+    userInfo?: User,
 }
 
 export interface TokenEvent {
@@ -21,5 +22,6 @@ export interface TweetEvent {
     type?: "like" | "unlike" | "retweet" | "unretweet" | "quote" | "unquote" | "reply",
     done?: boolean,
     tweetId?: string,
-    activatedTweet?: TweetComponent
+    activatedTweet?: TweetComponent,
+    update?: boolean
 }
