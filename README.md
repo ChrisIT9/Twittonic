@@ -21,4 +21,3 @@ Supported features:
 - [X] Support for #hashtags and @ats
 - [X] Infinite scroll
 - [X] Search page
-- [ ] Notifications page (probably polling-based)
