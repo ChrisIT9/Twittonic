@@ -201,6 +201,17 @@ export class TabsPage implements OnInit {
         if (!done) break;
         this.presentSuccessToast("Il feed verrà aggiornato tra 10 secondi."); 
         break;
+      case "delete":
+        if (!done) this.presentErrorToast("Qualcosa è andato storto.");
+        else {
+          let tweetIndex = this.likedTweets.findIndex(tweet => tweet.id === tweetId);
+          if (tweetIndex !== -1) this.likedTweets.splice(tweetIndex, 1);
+          tweetIndex = -1;
+          tweetIndex = this.retweets.findIndex(tweet => tweet.id === tweetId);
+          if (tweetIndex !== -1) this.retweets.splice(tweetIndex, 1);
+          this.presentSuccessToast("Il feed verrà aggiornato tra 10 secondi."); 
+        } 
+        break;
       default:
         break;
       }

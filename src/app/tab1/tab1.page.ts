@@ -73,7 +73,7 @@ export class Tab1Page implements OnInit {
     })
 
     this.eventsBroadcaster.tweetEventsObservable.subscribe(({ type, done }) => {
-      if ((type === "retweet" || type === "unretweet" || type === "reply") && done) {
+      if ((type === "retweet" || type === "unretweet" || type === "reply" || type === "delete") && done) {
         if (this.timeoutId) clearTimeout(this.timeoutId);
         this.timeoutId = setTimeout(this.getUserData.bind(this), 10000);
       }

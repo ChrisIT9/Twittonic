@@ -187,17 +187,21 @@ export class TwitterService {
     return this.httpClient.get(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${userId}/tweets?expansions=${expansions}&tweet.fields=${tweetFields}&user.fields=${userFields}&exclude=replies&max_results=100${paginationToken ? `&pagination_token=${paginationToken}` : ""}`);
   }
 
-  search({ term, hashtag }: { term?: string, hashtag?: string }) {
+  search({ term, hashtag, verifiedOnly, sortOrder, nResults }: { term?: string, hashtag?: string, verifiedOnly?: boolean, sortOrder?: string, nResults?: string | number }) {
     if (term) term = term.replaceAll("@", "%40").replaceAll("#", "%23");
-    const builtQuery = `${term ? `${term}` : ""} ${hashtag ? `%23${hashtag}` : ""} is:verified`;
+    const builtQuery = `${term ? `${term}` : ""} ${hashtag ? `%23${hashtag}` : ""}  ${verifiedOnly ? "is:verified" : ""}`;
     const expansions = "in_reply_to_user_id,referenced_tweets.id,referenced_tweets.id.author_id,author_id,attachments.media_keys";
     const mediaFields = "duration_ms,preview_image_url,type,url";
     const tweetFields = "attachments,author_id,conversation_id,created_at,id,in_reply_to_user_id,referenced_tweets,reply_settings,source,text,public_metrics,entities";
     const userFields = "id,name,profile_image_url,username,verified";
-    const maxResults = 10;
+    const maxResults = nResults;
 
     return this.httpClient.get<TweetsResponse>(`
-      ${environment.reverseProxyUrl}/${environment.twitterEndpoint}/tweets/search/recent?query=${builtQuery}&expansions=${expansions}&media.fields=${mediaFields}&tweet.fields=${tweetFields}&user.fields=${userFields}&max_results=${maxResults}&sort_order=relevancy`
+      ${environment.reverseProxyUrl}/${environment.twitterEndpoint}/tweets/search/recent?query=${builtQuery}&expansions=${expansions}&media.fields=${mediaFields}&tweet.fields=${tweetFields}&user.fields=${userFields}&max_results=${maxResults}&sort_order=${sortOrder}`
     );
+  }
+
+  deleteTweet(tweetId: string | number) {
+    return this.httpClient.delete(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/tweets/${tweetId}`);
   }
 }

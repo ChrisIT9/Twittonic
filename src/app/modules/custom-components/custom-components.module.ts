@@ -10,10 +10,11 @@ import { FormattedHtmlObjectsComponent } from 'src/app/components/formatted-html
 import { UserProfileComponent } from 'src/app/components/user-profile/user-profile.component';
 import { FormsModule } from '@angular/forms';
 import { QuoteModalComponent } from 'src/app/components/quote-modal/quote-modal.component';
+import { TweetSettingsPopoverComponent } from 'src/app/components/tweet-settings-popover/tweet-settings-popover.component';
 
 
 @NgModule({
-  declarations: [TweetComponent, SettingsPopoverComponent, ImageCarouselComponent, FormattedHtmlObjectsComponent, UserProfileComponent, QuoteModalComponent],
+  declarations: [TweetComponent, SettingsPopoverComponent, ImageCarouselComponent, FormattedHtmlObjectsComponent, UserProfileComponent, QuoteModalComponent, TweetSettingsPopoverComponent],
   imports: [
     CommonModule,
     IonicModule,
@@ -21,6 +22,6 @@ import { QuoteModalComponent } from 'src/app/components/quote-modal/quote-modal.
     RouterModule,
     FormsModule
   ],
-  exports: [TweetComponent, SettingsPopoverComponent, ImageCarouselComponent, FormattedHtmlObjectsComponent, UserProfileComponent, QuoteModalComponent]
+  exports: [TweetComponent, SettingsPopoverComponent, ImageCarouselComponent, FormattedHtmlObjectsComponent, UserProfileComponent, QuoteModalComponent, TweetSettingsPopoverComponent]
 })
 export class CustomComponentsModule { }

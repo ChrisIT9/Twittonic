@@ -1,4 +1,4 @@
-<ion-card>
+<ion-card [ngClass]="{ 'half-opacity': toBeDeleted }">
   <ion-card-header class="text-start">
     <ion-card-title class="d-flex justify-content-between align-items-start">
       <a href="https://www.twitter.com/{{tweet.username}}" target="_blank" class="clickable d-flex justify-content-start align-items-center">
@@ -10,7 +10,7 @@
           </ion-card-subtitle>
         </div>
       </a>
-      <a class="m-2" href="https://www.twitter.com/{{tweet.username}}/status/{{tweet.id}}" target="_blank"><ion-icon name="open-outline"></ion-icon></a>
+      <ion-icon name="ellipsis-vertical-outline" (click)="presentPopover($event)"></ion-icon>
     </ion-card-title>
     <ion-card-content class="px-1 py-4 tweet-content">
       <app-formatted-html-objects *ngIf="tweet.sourceHtmlObjects" [htmlObjects]="tweet.sourceHtmlObjects"> 

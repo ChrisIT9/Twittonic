@@ -4,7 +4,7 @@ import { LoadingController, ToastController } from '@ionic/angular';
 import { getExpandedTweets } from 'src/utils/Misc';
 import { EventsBroadcasterService } from '../services/events-broadcaster.service';
 import { TwitterService } from '../services/twitter.service';
-import { ExpandedTweet, Tweet } from '../typings/Tweets';
+import { ExpandedTweet, Tweet, TweetsResponse } from '../typings/Tweets';
 import { User } from '../typings/TwitterUsers';
 
 
@@ -14,15 +14,11 @@ import { User } from '../typings/TwitterUsers';
   styleUrls: ['tab2.page.scss']
 })
 export class Tab2Page implements OnInit {
-
   topics = ["xqcow", "twitch", "nopixel", "langbuddha", "sykkuno", "pokelawls", "jerma", "hasanabi"];
   tweets: ExpandedTweet[] = [];
   userInfo: User | undefined;
   likedTweets: Partial<Tweet>[] = [];
   retweets: Partial<Tweet>[] = [];
-  paginationToken: string;
-  infiniteScrollTarget: any;
-  timeoutId: any | undefined = undefined;
   ready = false;
   currentTopic: string;
   query: string;
@@ -32,6 +28,9 @@ export class Tab2Page implements OnInit {
   lastQuery: string;
   isHashtag: boolean;
   updateModel = true;
+  verifiedOnly = true;
+  sortOrder: string = "relevancy";
+  numberOfResults: number | string = 30;
 
   constructor(
     private twitterService: TwitterService, 
@@ -95,8 +94,8 @@ export class Tab2Page implements OnInit {
     this.empty = false;
     this.presentLoading();
 
-    this.twitterService.search({ term: queryTerm, hashtag }).subscribe({
-      next: (async (res) => {
+    this.twitterService.search({ term: queryTerm, hashtag, verifiedOnly: this.verifiedOnly, sortOrder: this.sortOrder, nResults: this.numberOfResults }).subscribe({
+      next: (async (res: TweetsResponse) => {
         const expandedTweets = await getExpandedTweets(res, this.twitterService);
         if (expandedTweets) this.tweets.push(...expandedTweets.filter(item => item));
         else this.empty = true;
@@ -125,6 +124,40 @@ export class Tab2Page implements OnInit {
     this.router.navigate([], { relativeTo: this.activatedRoute, queryParams: { search: this.query, hashtag: null }, queryParamsHandling: "merge" })
   }
 
-  
+  toggleVerified(event: any) {
+    this.verifiedOnly = event.detail.checked;
+    if (this.query && this.isHashtag) {
+      this.tweets.splice(0);
+      this.getTweets({ hashtag: this.query });
+    } 
+    else if (this.query && !this.isHashtag) {
+      this.tweets.splice(0);
+      this.getTweets({ queryTerm: this.query });
+    } 
+  }
+
+  changeSortOrder(event: any) {
+    this.sortOrder = event.detail.value;
+    if (this.query && this.isHashtag) {
+      this.tweets.splice(0);
+      this.getTweets({ hashtag: this.query });
+    } 
+    else if (this.query && !this.isHashtag) {
+      this.tweets.splice(0);
+      this.getTweets({ queryTerm: this.query });
+    } 
+  }
+
+  changeNumberOfResults(event: any) {
+    this.numberOfResults = event.detail.value;
+    if (this.query && this.isHashtag) {
+      this.tweets.splice(0);
+      this.getTweets({ hashtag: this.query });
+    } 
+    else if (this.query && !this.isHashtag) {
+      this.tweets.splice(0);
+      this.getTweets({ queryTerm: this.query });
+    } 
+  }
 
 }

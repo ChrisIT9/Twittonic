@@ -19,7 +19,7 @@ export interface TokenEvent {
 }
 
 export interface TweetEvent {
-    type?: "like" | "unlike" | "retweet" | "unretweet" | "quote" | "unquote" | "reply",
+    type?: "like" | "unlike" | "retweet" | "unretweet" | "quote" | "unquote" | "reply" | "delete",
     done?: boolean,
     tweetId?: string,
     activatedTweet?: TweetComponent,

@@ -6,8 +6,8 @@ Supported features:
 - [X] Automatic token refreshing (when possible)
 - [X] Basic tweeting capabilities
 - [X] Logout and token revoking
-- [ ] Advanced tweeting capabilities
-  - [ ] Deleting tweets
+- [X] Advanced tweeting capabilities
+  - [X] Deleting tweets
   - [X] Retweeting
   - [X] Liking
   - [X] Quoting

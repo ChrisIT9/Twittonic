@@ -1,0 +1,7 @@
+<ion-content>
+  <ion-list>
+    <ion-list-header class="my-1">Impostazioni</ion-list-header>
+    <ion-item button color="primary" target="_blank" href="https://www.twitter.com/{{quotedUser?.username || tweet.username}}/status/{{tweet.id}}">Apri su Twitter</ion-item>
+    <ion-item *ngIf="userId === tweet.author_id" button color="danger" (click)="deleteTweet()">Cancella <ion-icon name="trash-outline" class="mx-1"></ion-icon></ion-item>
+  </ion-list>
+</ion-content>

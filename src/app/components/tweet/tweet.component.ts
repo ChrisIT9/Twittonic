@@ -6,6 +6,7 @@ import { TwitterService } from 'src/app/services/twitter.service';
 import { TweetEvent } from 'src/app/typings/Events';
 import { ExpandedTweet, Metrics, Tweet } from 'src/app/typings/Tweets';
 import { QuoteModalComponent } from '../quote-modal/quote-modal.component';
+import { TweetSettingsPopoverComponent } from '../tweet-settings-popover/tweet-settings-popover.component';
 
 @Component({
   selector: 'app-tweet',
@@ -18,6 +19,7 @@ export class TweetComponent implements OnInit {
   @Input() userId: string | number;
   @Input() retweeted: boolean;
   @Input() retweets: Partial<Tweet>[];
+  toBeDeleted = false;
   publicMetrics: Metrics;
   actualTweet: Tweet;
   tweetEventsObservable: Observable<TweetEvent>;
@@ -33,6 +35,9 @@ export class TweetComponent implements OnInit {
         if (type === "like" || type === "unlike") this.publicMetrics.like_count += this.liked ? -1 : 1;
         if (type === "retweet" || type === "unretweet") this.toggleRetweet();
         if (type === "reply") this.publicMetrics.reply_count++;
+        if (type === "delete" && done && tweetId === this.actualTweet.id) {
+          this.toBeDeleted = true;
+        }
       }
     })
 
@@ -98,6 +103,17 @@ export class TweetComponent implements OnInit {
         this.eventsBroadcaster.newTweetEvent({ type: "reply", activatedTweet: this, tweetId: this.actualTweet.id, done: true });
       } 
     }
+  }
+
+  async presentPopover(ev: any) {
+    const popover = await this.popoverController.create({
+      component: TweetSettingsPopoverComponent,
+      event: ev,
+      translucent: true,
+      dismissOnSelect: true,
+      componentProps: { tweet: this.actualTweet, userId: this.userId, quotedUser: this.tweet.quotedUser }
+    });
+    await popover.present();
   }
 
 }
