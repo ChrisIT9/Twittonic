@@ -88,7 +88,7 @@ export class TabsPage implements OnInit {
           }
         })
 
-        if (res.data.length === 100 && res.meta.next_token) this.getRetweetedTweets(res.meta.next_token);
+        if (res.data?.length === 100 && res.meta.next_token) this.getRetweetedTweets(res.meta.next_token);
         else this.eventsBroadcaster.newAuthEvent({ success: true, type: "firstLogin", likedTweets: this.likedTweets, userInfo: this.userInfo, retweets: this.retweets });
       }).bind(this),
       error: ((_) => {

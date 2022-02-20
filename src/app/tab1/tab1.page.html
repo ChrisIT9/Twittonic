@@ -122,7 +122,8 @@
     </div>
 
     <div class="row w-lg-50 mt-3">
-      <h1 *ngIf="userInfo">I tuoi tweet</h1>
+      <h1 *ngIf="userInfo && ownTweets.length > 0">I tuoi tweet</h1>
+      <h1 *ngIf="userInfo && !ownTweets.length">Non hai ancora twittato niente, twitta qualcosa!</h1>
       <ion-spinner *ngIf="tweetsLoading" name="bubbles"></ion-spinner>
       <div class="col-12" *ngFor="let tweet of ownTweets" [ngStyle]="{ 'display': tweetsLoading ? 'none' : 'block' }">
         <app-tweet [tweet]="tweet" [liked]="tweetHasBeenLiked(tweet)" [retweets]="retweets" [userId]="userInfo.id"></app-tweet>

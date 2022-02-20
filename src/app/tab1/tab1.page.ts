@@ -189,15 +189,19 @@ export class Tab1Page implements OnInit {
     }
     if (!ev) this.tweetsLoading = true;
 
+    if (!this.paginationToken && ev) {
+      ev.target.disabled = true;
+      this.infiniteScrollTarget = ev.target;
+      return;
+    } 
+
     this.twitterService.getTweets(this.userInfo.id, this.paginationToken).subscribe({
       next: (async (res: TweetsResponse) => {
-        this.ownTweets.push(...(await getExpandedTweets(res, this.twitterService)).filter(item => item));
+        const expandedTweets = await getExpandedTweets(res, this.twitterService);
+        if (expandedTweets)
+          this.ownTweets.push(...expandedTweets.filter(item => item));
 
-        if (!res.meta.next_token) {
-          ev.target.disabled = true;
-          this.infiniteScrollTarget = ev.target;
-        } 
-        else this.paginationToken = res.meta.next_token;
+        this.paginationToken = res.meta.next_token;
 
         if (!ev) {
           this.tweetsLoading = false;
