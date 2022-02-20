@@ -16,7 +16,7 @@ export class ImageCarouselComponent implements OnInit {
   ngOnInit() {
     this.currentUrl = this.mediaUrls[0]?.url;
     this.currentIndex = 0;
-    this.display = this.mediaUrls.every(url => url.type !== "video")
+    this.display = this.mediaUrls?.length && this.mediaUrls.every(url => url.type === "photo")
   }
 
   next() {

@@ -13,7 +13,7 @@
     </ion-toolbar>
   </ion-header>
 
-  <div *ngIf="ready" class="container-lg d-flex flex-column align-items-center justify-content-center text-center">
+  <div class="container-lg d-flex flex-column align-items-center justify-content-center text-center">
     <ion-searchbar placeholder="Cerca qualcosa!" debounce="1000" [(ngModel)]="query" (ionChange)="startNavigation()">
     </ion-searchbar>
 
@@ -27,7 +27,7 @@
         <ion-label position="stacked">Ordinamento</ion-label>
         <ion-select [value]="sortOrder" (ionChange)="changeSortOrder($event)" interface="popover">
           <ion-select-option value="relevancy">Rilevanza</ion-select-option>
-          <ion-select-option value="recency">Più recenti</ion-select-option>
+          <ion-select-option value="recency">Recenti</ion-select-option>
         </ion-select>
       </ion-item>
 

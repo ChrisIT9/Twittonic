@@ -48,6 +48,7 @@ export class Tab2Page implements OnInit {
         this.retweets = retweets;
         this.userInfo = userInfo;
         this.ready = true;
+        console.log("we back");
       }
     })
   }
