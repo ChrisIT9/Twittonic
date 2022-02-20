@@ -82,7 +82,7 @@ export const getExpandedTweets = async (tweetsResponse: TweetsResponse, twitterS
             if (word.startsWith("@")) {
                 const foundUsername = tweet.entities?.mentions?.find(item => word.toLowerCase().includes(item.username.toLowerCase()));
                 if (foundUsername) return { content: `${word} `, href: `https://www.twitter.com/${foundUsername.username}`, transform: true };
-                else return { content: `${word} `, transform: false }
+                else return { content: `${word} `, href: `https://www.twitter.com/${word.substring(1)}`, transform: true };
             }
                 
 
@@ -113,7 +113,7 @@ export const getExpandedTweets = async (tweetsResponse: TweetsResponse, twitterS
                 if (word.startsWith("@")) {
                     const foundUsername = tweet.entities?.mentions?.find(item => word.toLowerCase().includes(item.username.toLowerCase()));
                     if (foundUsername) return { content: `${word} `, href: `https://www.twitter.com/${foundUsername.username}`, transform: true };
-                    else return { content: `${word} `, transform: false };
+                    else return { content: `${word} `, href: `https://www.twitter.com/${word.substring(1)}`, transform: true };
                 }
     
                 if (word.startsWith("http")) {

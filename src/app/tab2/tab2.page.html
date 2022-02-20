@@ -20,20 +20,20 @@
     <div class="w-100 d-flex flex-column flex-md-row justify-content-evenly justify-content-md-start align-items-center">
       <ion-item class="my-2 mx-2">
         <ion-label position="start" class="mx-1">Solo account verificati</ion-label>
-        <ion-checkbox checked="true" (ionChange)="toggleVerified($event)"></ion-checkbox>
+        <ion-checkbox [checked]="verifiedOnly" (ionChange)="toggleVerified($event)"></ion-checkbox>
       </ion-item>
   
       <ion-item class="my-2 mx-2">
         <ion-label position="stacked">Ordinamento</ion-label>
-        <ion-select value="relevancy" (ionChange)="changeSortOrder($event)" interface="popover">
+        <ion-select [value]="sortOrder" (ionChange)="changeSortOrder($event)" interface="popover">
           <ion-select-option value="relevancy">Rilevanza</ion-select-option>
-          <ion-select-option value="recency">Più recente</ion-select-option>
+          <ion-select-option value="recency">Più recenti</ion-select-option>
         </ion-select>
       </ion-item>
 
       <ion-item class="my-2 mx-2">
         <ion-label position="stacked">Risultati</ion-label>
-        <ion-select value="20" (ionChange)="changeNumberOfResults($event)" interface="popover">
+        <ion-select [value]="numberOfResults" (ionChange)="changeNumberOfResults($event)" interface="popover">
           <ion-select-option value="10">10</ion-select-option>
           <ion-select-option value="20">20</ion-select-option>
           <ion-select-option value="30">30</ion-select-option>

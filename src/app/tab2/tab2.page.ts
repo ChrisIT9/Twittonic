@@ -31,6 +31,8 @@ export class Tab2Page implements OnInit {
   verifiedOnly = true;
   sortOrder: string = "relevancy";
   numberOfResults: number | string = 30;
+  shouldRefresh = false;
+  searchInProgress = false;
 
   constructor(
     private twitterService: TwitterService, 
@@ -59,19 +61,28 @@ export class Tab2Page implements OnInit {
             this.alreadySearching = true;
             const search = res.get("search");
             const hashtag = res.get("hashtag");
+            const maxResults = res.get("max_results");
+            const sortOrder = res.get("sort_order");
+            const verifiedOnly = res.get("verified_only");
 
-            if (search && search !== this.lastQuery) {
+            this.numberOfResults = maxResults || "20";
+            this.sortOrder = sortOrder || "relevancy";
+            this.verifiedOnly = verifiedOnly === "true" || verifiedOnly === null;
+
+            if ((this.shouldRefresh && !this.isHashtag) || (search && search !== this.lastQuery)) {
               this.tweets.splice(0);
               this.query = search;
-              this.getTweets({ queryTerm: this.query });
               this.isHashtag = false;
               this.updateModel = true;
-            } else if (hashtag && hashtag !== this.lastQuery) {
+              this.shouldRefresh = false;
+              this.getTweets({ queryTerm: this.query });
+            } else if ((this.shouldRefresh && this.isHashtag) || (hashtag && hashtag !== this.lastQuery)) {
               this.tweets.splice(0);
               this.query = hashtag;
-              this.getTweets({ hashtag });
               this.isHashtag = true;
               this.updateModel = false;
+              this.shouldRefresh = false;
+              this.getTweets({ hashtag });
             }
           });
         }
@@ -87,12 +98,14 @@ export class Tab2Page implements OnInit {
   }
 
   getTweets({ hashtag, queryTerm }: { hashtag?: string, queryTerm?: string }) {
-    if (!hashtag && !queryTerm) return;
+    if ((!hashtag && !queryTerm) || this.searchInProgress) return;
 
     this.lastQuery = hashtag || queryTerm;
 
     this.empty = false;
     this.presentLoading();
+
+    this.searchInProgress = true;
 
     this.twitterService.search({ term: queryTerm, hashtag, verifiedOnly: this.verifiedOnly, sortOrder: this.sortOrder, nResults: this.numberOfResults }).subscribe({
       next: (async (res: TweetsResponse) => {
@@ -102,13 +115,15 @@ export class Tab2Page implements OnInit {
         await this.loadingBox.dismiss();
         this.alreadySearching = false;
         this.updateModel = true;
+        this.searchInProgress = false;
       }).bind(this),
       error: (async (_: any) => {
         await this.loadingBox.dismiss();
         this.toastController.create({ message: "Si è verificato un errore!", position: "top", color: "danger", duration: 1500 });
         this.alreadySearching = false;
         this.updateModel = true;
-      })
+        this.searchInProgress = false;
+      }).bind(this)
     })
   }
 
@@ -125,39 +140,71 @@ export class Tab2Page implements OnInit {
   }
 
   toggleVerified(event: any) {
-    this.verifiedOnly = event.detail.checked;
-    if (this.query && this.isHashtag) {
-      this.tweets.splice(0);
-      this.getTweets({ hashtag: this.query });
+    this.shouldRefresh = true;
+    if (this.isHashtag) {
+      this.router.navigate([], { relativeTo: this.activatedRoute, queryParams: { 
+        search: null, 
+        hashtag: this.query, 
+        max_results: this.numberOfResults,
+        sort_order: this.sortOrder,
+        verified_only: event.detail.checked
+      }, queryParamsHandling: "merge" })
     } 
-    else if (this.query && !this.isHashtag) {
-      this.tweets.splice(0);
-      this.getTweets({ queryTerm: this.query });
+    else {
+      this.router.navigate([], { relativeTo: this.activatedRoute, queryParams: { 
+        search: this.query, 
+        hashtag: null, 
+        max_results: this.numberOfResults,
+        sort_order: this.sortOrder,
+        verified_only: event.detail.checked
+      }, queryParamsHandling: "merge" })
     } 
   }
 
   changeSortOrder(event: any) {
-    this.sortOrder = event.detail.value;
-    if (this.query && this.isHashtag) {
-      this.tweets.splice(0);
-      this.getTweets({ hashtag: this.query });
+    this.shouldRefresh = true;
+    if (this.isHashtag) {
+      this.router.navigate([], { relativeTo: this.activatedRoute, queryParams: { 
+        search: null, 
+        hashtag: this.query, 
+        max_results: this.numberOfResults,
+        sort_order: event.detail.value,
+        verified_only: this.verifiedOnly
+      }, queryParamsHandling: "merge" })
     } 
-    else if (this.query && !this.isHashtag) {
-      this.tweets.splice(0);
-      this.getTweets({ queryTerm: this.query });
+    else {
+      this.router.navigate([], { relativeTo: this.activatedRoute, queryParams: { 
+        search: this.query, 
+        hashtag: null, 
+        max_results: this.numberOfResults,
+        sort_order: event.detail.value,
+        verified_only: this.verifiedOnly
+      }, queryParamsHandling: "merge" })
     } 
   }
 
   changeNumberOfResults(event: any) {
-    this.numberOfResults = event.detail.value;
-    if (this.query && this.isHashtag) {
+    this.shouldRefresh = true;
+    if (this.isHashtag) {
       this.tweets.splice(0);
-      this.getTweets({ hashtag: this.query });
+      this.router.navigate([], { relativeTo: this.activatedRoute, queryParams: { 
+        search: null, 
+        hashtag: this.query, 
+        max_results: event.detail.value,
+        sort_order: this.sortOrder,
+        verified_only: this.verifiedOnly
+      }, queryParamsHandling: "merge" })
     } 
-    else if (this.query && !this.isHashtag) {
+    else {
       this.tweets.splice(0);
-      this.getTweets({ queryTerm: this.query });
-    } 
+      this.router.navigate([], { relativeTo: this.activatedRoute, queryParams: { 
+        search: this.query, 
+        hashtag: null, 
+        max_results: event.detail.value,
+        sort_order: this.sortOrder,
+        verified_only: this.verifiedOnly
+      }, queryParamsHandling: "merge" })
+    }
   }
 
 }
