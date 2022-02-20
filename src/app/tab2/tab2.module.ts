@@ -7,6 +7,8 @@ import { Tab2Page } from './tab2.page';
 import { ExploreContainerComponentModule } from '../explore-container/explore-container.module';
 
 import { Tab2PageRoutingModule } from './tab2-routing.module';
+import { CustomComponentsModule } from '../modules/custom-components/custom-components.module';
+import { CustomPipesModule } from '../modules/custom-pipes/custom-pipes.module';
 
 @NgModule({
   imports: [
@@ -14,7 +16,9 @@ import { Tab2PageRoutingModule } from './tab2-routing.module';
     CommonModule,
     FormsModule,
     ExploreContainerComponentModule,
-    Tab2PageRoutingModule
+    Tab2PageRoutingModule,
+    CustomComponentsModule,
+    CustomPipesModule
   ],
   declarations: [Tab2Page]
 })

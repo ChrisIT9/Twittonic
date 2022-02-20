@@ -5,6 +5,7 @@ import { IndexedDBService } from './indexed-db.service';
 import { environment } from 'src/environments/environment';
 import { TwitterService } from './twitter.service';
 import { EventsBroadcasterService } from './events-broadcaster.service';
+import { parseBody } from 'src/utils/BodyParser';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,7 @@ export class RequestInterceptorService implements HttpInterceptor {
 
   bearerRoutes = ['/users', '/tweets'];
   basicRoutes = ['/oauth2'];
+  clientRoutes = ['/tweets/sample/stream'];
   tokensAreRefreshing = false;
 
   constructor(private indexedDB: IndexedDBService, private twitterService: TwitterService, private eventsBroadcaster: EventsBroadcasterService) { }
@@ -25,6 +27,7 @@ export class RequestInterceptorService implements HttpInterceptor {
   async handle(req: HttpRequest<any>, next: HttpHandler) {
     const createdAt = Number((await this.indexedDB.readFile({ path: "twittonic/createdAt" })).data);
     const expiresIn = Number((await this.indexedDB.readFile({ path: "twittonic/expiresIn" })).data);
+    const clientToken = (await this.indexedDB.readFile({ path: "twittonic/clientToken" })).data;
     const currentTime = Math.round(Date.now() / 1000);
 
     const lowerCaseUrl = req.url.toLowerCase();
@@ -39,10 +42,14 @@ export class RequestInterceptorService implements HttpInterceptor {
 
     if (this.basicRoutes.some(item => lowerCaseUrl.includes(item.toLowerCase()))) {
       const base64AuthString = btoa(`${environment.twitterClientId}:${environment.twitterClientSecret}`);
+      const consumerAuthString = btoa(`${environment.consumerKey}:${environment.consumerSecret}`);
+
+      const parsedBody = parseBody(req.body);
+
       const authReq = req.clone({
         setHeaders: {
           "Content-Type": "application/x-www-form-urlencoded",
-          "Authorization": `Basic ${base64AuthString}`
+          "Authorization": `Basic ${parsedBody?.grant_type === "client_credentials" ? consumerAuthString : base64AuthString}`
         }
       })
       return next.handle(authReq).toPromise();
@@ -65,7 +72,7 @@ export class RequestInterceptorService implements HttpInterceptor {
 
       const authReq = req.clone({
         setHeaders: {
-          Authorization: `Bearer ${accessToken}`
+          Authorization: `Bearer ${this.clientRoutes.some(route => lowerCaseUrl.includes(route.toLowerCase())) && clientToken ? clientToken : accessToken}`
         }
       });
 

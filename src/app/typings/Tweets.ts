@@ -21,8 +21,23 @@ export interface Url {
     display_url: string;
 }
 
+export interface Hashtag {
+    start: number,
+    end: number,
+    tag: string
+}
+
+export interface Mention {
+    start: number,
+    end: number,
+    username: string,
+    id: string
+}
+
 export interface Entities {
-    urls: Url[];
+    urls?: Url[];
+    hashtags?: Hashtag[],
+    mentions?: Mention[]
 }
 
 export interface Tweet {
@@ -88,6 +103,7 @@ export interface TweetResponse {
     includes: Includes;
     errors: Error[];
     meta: Meta;
+    error?: any
 }
 
 export interface ExpandedTweet extends Tweet {
@@ -99,7 +115,8 @@ export interface ExpandedTweet extends Tweet {
     mediaUrl?: { url: string, type: string }[],
     retweetedTweet?: Tweet,
     quotedUser?: User,
-    intermediaryTweet?: Tweet
+    intermediaryTweet?: Tweet,
+    verified?: boolean,
 }
 
 export interface TweetLikeResponse {

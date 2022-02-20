@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Tab 2
+      Esplora
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -9,9 +9,21 @@
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Tab 2</ion-title>
+      <ion-title size="large">Esplora</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <app-explore-container name="Tab 2 page"></app-explore-container>
+  <div *ngIf="ready" class="container-lg d-flex flex-column align-items-center justify-content-center text-center">
+    <ion-searchbar placeholder="Cerca qualcosa!" debounce="1000" [(ngModel)]="query" (ionChange)="startNavigation()"></ion-searchbar>
+
+    <h1 *ngIf="!query">Prova a cercare qualcosa!</h1>
+
+    <div *ngIf="query" class="row w-lg-50 mt-3">
+      <h1 *ngIf="query && !empty">Cosa dicono per <b> {{ isHashtag ? "#" : "" }}{{ query }} </b> </h1>
+      <h1 *ngIf="empty && query">Nessun risultato trovato per <b> {{ isHashtag ? "#" : "" }}{{ query }} </b> </h1>
+      <div class="col-12" *ngFor="let tweet of tweets">
+        <app-tweet [tweet]="tweet" [liked]="tweetHasBeenLiked(tweet)" [retweets]="retweets" [userId]="userInfo.id"></app-tweet>
+      </div>
+    </div>
+  </div>
 </ion-content>

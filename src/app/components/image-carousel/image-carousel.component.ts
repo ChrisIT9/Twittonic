@@ -9,11 +9,14 @@ export class ImageCarouselComponent implements OnInit {
   @Input() mediaUrls: { url: string, type: string }[];
   currentUrl: string;
   currentIndex: number;
+  display: boolean;
+
   constructor() { }
 
   ngOnInit() {
     this.currentUrl = this.mediaUrls[0]?.url;
     this.currentIndex = 0;
+    this.display = this.mediaUrls.every(url => url.type !== "video")
   }
 
   next() {

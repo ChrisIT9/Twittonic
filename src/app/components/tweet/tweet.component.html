@@ -4,7 +4,7 @@
       <a href="https://www.twitter.com/{{tweet.username}}" target="_blank" class="clickable d-flex justify-content-start align-items-center">
         <img class="br-100 mx-2" [src]="tweet.profile_image_url">
         <div>
-          <b class="text-break">{{ tweet.name | trimWord }}</b>
+          <b class="text-break d-flex justify-content-start align-items-center">{{ tweet.name | trimWord }} <ion-icon *ngIf="tweet.verified" name="checkmark-circle" class="mx-1"></ion-icon> </b>
           <ion-card-subtitle class="w-100 my-1 text-break">
             @{{ tweet.username }}
           </ion-card-subtitle>

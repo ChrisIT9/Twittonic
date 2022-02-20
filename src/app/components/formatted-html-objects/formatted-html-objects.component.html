@@ -3,7 +3,7 @@
   </span>
   <a class="clickable" target="_blank" *ngIf="htmlObject?.transform && htmlObject.href" [href]="htmlObject.href" [innerHTML]="htmlObject?.content">
   </a>
-  <a class="clickable" *ngIf="htmlObject?.transform && htmlObject.routerLink" [routerLink]="htmlObject.routerLink" [queryParams]="htmlObject.queryParams" [innerHTML]="htmlObject?.content">
+  <a class="clickable" *ngIf="htmlObject?.transform && htmlObject.routerLink" [routerLink]="htmlObject.routerLink" [queryParams]="htmlObject.queryParams" queryParamsHandling="merge" [innerHTML]="htmlObject?.content">
   </a>
   <ng-content></ng-content>
 </ng-container> 

@@ -52,7 +52,6 @@ export class Tab1Page implements OnInit {
       if (type === "firstLogin" && success && likedTweets && userInfo && retweets) {
         this.likedTweets = likedTweets;
         this.retweets = retweets;
-        console.log(this.retweets);
         this.userInfo = userInfo;
         this.userInfoLoading = false;
         this.getOwnTweets();
@@ -192,7 +191,7 @@ export class Tab1Page implements OnInit {
 
     this.twitterService.getTweets(this.userInfo.id, this.paginationToken).subscribe({
       next: (async (res: TweetsResponse) => {
-        this.ownTweets.push(...await getExpandedTweets(res, this.twitterService));
+        this.ownTweets.push(...(await getExpandedTweets(res, this.twitterService)).filter(item => item));
 
         if (!res.meta.next_token) {
           ev.target.disabled = true;

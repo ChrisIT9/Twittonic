@@ -12,7 +12,6 @@ Supported features:
   - [X] Liking
   - [X] Quoting
   - [X] Replying
-  - [ ] Media attachments
 - [X] More details per tweet (when available)
   - [X] Seeing tagged user (if any) (kinda)
   - [X] Replies (again, kinda)
@@ -20,9 +19,6 @@ Supported features:
   - [X] Retweets
   - [X] Quotes
 - [X] Support for #hashtags and @ats
-- [ ] Support for interactions with other users (eg. following someone)
-- [ ] In-detail pages for tweets and users
 - [X] Infinite scroll
-- [ ] Search and trending page
+- [X] Search page
 - [ ] Notifications page (probably polling-based)
-- [ ] Profile editing (eg. changing bio, username)

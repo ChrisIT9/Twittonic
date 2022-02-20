@@ -23,7 +23,9 @@ export const environment = {
   successRedirectUri: "http://127.0.0.1:8100/twitter/oauth",
   backendEndpoint: "http://127.0.0.1:3001/2",
   twitterEndpoint: "https://api.twitter.com/2",
-  reverseProxyUrl: "http://localhost:8080"
+  reverseProxyUrl: "http://localhost:8080",
+  consumerKey: "x5uYJXeiKOU442FevbnyqCjur",
+  consumerSecret: "KZyocz88iJIXllSvbxXPTzLdt1iHLHoH4zJbNeFziUdU2nT3MU"
 };
 
 /*

@@ -100,6 +100,19 @@ export class TabsPage implements OnInit {
 
   async init() {
     const accessToken = (await this.indexedDB.readFile({ path: "twittonic/accessToken" })).data;
+    const clientToken = (await this.indexedDB.readFile({ path: "twittonic/clientToken" })).data;
+
+    if (!clientToken) {
+      this.twitterService.getClientToken().subscribe({
+        next: (async (res) => {
+          await this.indexedDB.writeFile({ path: "twittonic/clientToken", data: res.access_token });
+          this.eventsBroadcaster.newAuthEvent({ type: "clientLogin", success: true });
+        }).bind(this),
+        error: ((_: any) => {
+          this.presentErrorToast("Qualcosa è andato storto.", 500);
+        }).bind(this)
+      })
+    } else this.eventsBroadcaster.newAuthEvent({ type: "clientLogin", success: true });
 
     if (!accessToken) {
       this.presentErrorToast("Token mancante o scaduto!"); 

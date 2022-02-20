@@ -37,6 +37,19 @@ export class TwitterService {
     );
   }
 
+  getClientToken() {
+    const body = new HttpParams()
+    .set("grant_type", "client_credentials");
+
+    return this.httpClient.post<Pick<TwitterOAuthResponse, 'token_type' | 'access_token'>>(
+      `${environment.reverseProxyUrl}/https://api.twitter.com/oauth2/token`,
+      body.toString(),
+      { 
+        headers: this.urlEncodedHeader
+      }
+    )
+  }
+
   async refreshTokens() {
     const refreshToken = (await this.indexedDB.readFile({ path: "twittonic/refreshToken" })).data;
     if (!refreshToken) return;
@@ -172,5 +185,19 @@ export class TwitterService {
     const userFields = "id";
 
     return this.httpClient.get(`${environment.reverseProxyUrl}/${environment.twitterEndpoint}/users/${userId}/tweets?expansions=${expansions}&tweet.fields=${tweetFields}&user.fields=${userFields}&exclude=replies&max_results=100${paginationToken ? `&pagination_token=${paginationToken}` : ""}`);
+  }
+
+  search({ term, hashtag }: { term?: string, hashtag?: string }) {
+    if (term) term = term.replaceAll("@", "%40").replaceAll("#", "%23");
+    const builtQuery = `${term ? `${term}` : ""} ${hashtag ? `%23${hashtag}` : ""} is:verified`;
+    const expansions = "in_reply_to_user_id,referenced_tweets.id,referenced_tweets.id.author_id,author_id,attachments.media_keys";
+    const mediaFields = "duration_ms,preview_image_url,type,url";
+    const tweetFields = "attachments,author_id,conversation_id,created_at,id,in_reply_to_user_id,referenced_tweets,reply_settings,source,text,public_metrics,entities";
+    const userFields = "id,name,profile_image_url,username,verified";
+    const maxResults = 10;
+
+    return this.httpClient.get<TweetsResponse>(`
+      ${environment.reverseProxyUrl}/${environment.twitterEndpoint}/tweets/search/recent?query=${builtQuery}&expansions=${expansions}&media.fields=${mediaFields}&tweet.fields=${tweetFields}&user.fields=${userFields}&max_results=${maxResults}&sort_order=relevancy`
+    );
   }
 }

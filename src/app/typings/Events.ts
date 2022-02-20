@@ -3,7 +3,7 @@ import { Tweet } from "./Tweets";
 import { User } from "./TwitterUsers";
 
 export interface AuthEvent {
-    type?: "login" | "logout" | "session" | "firstLogin",
+    type?: "login" | "logout" | "session" | "firstLogin" | "clientLogin",
     message?: string
     success?: boolean,
     userId?: string,

@@ -1,4 +1,4 @@
-<div class="image-container">
+<div *ngIf="display" class="image-container">
   <img *ngIf="!isVideo(currentUrl)" [src]="currentUrl" class="w-100 media">
   <video *ngIf="isVideo(currentUrl)" [src]="currentUrl" class="w-100 media" controls></video>
   <div class="h-100 back" *ngIf="mediaUrls.length > 1"> 
@@ -7,5 +7,4 @@
   <div class="h-100 forward" *ngIf="mediaUrls.length > 1">
     <ion-icon class="forward-button" name="chevron-forward-outline" (click)="next()"></ion-icon>
   </div>
-  
 </div>
