@@ -47,10 +47,6 @@ export class TabsPage implements OnInit {
     this.presentToast(message, "danger", duration);
   }
 
-  private presentInfoToast(message: string, duration = 2000) {
-    this.presentToast(message, "primary", duration);
-  }
-
   async getLikedTweets(paginationToken?: string) {
     const accessToken = (await this.indexedDB.readFile({ path: "twittonic/accessToken" })).data;
 
@@ -59,8 +55,8 @@ export class TabsPage implements OnInit {
     this.twitterService.getTweetsLikedByUser(this.userId, paginationToken).subscribe({ 
       next: ((res: Pick<TweetsResponse, 'data' | 'meta'>) => {
         this.likedTweetsAlreadyLoaded = true;
-        res.data.length > 0 && this.likedTweets.push(...res.data);
-        if (res.meta.result_count === 100 && res.meta.next_token) this.getLikedTweets(res.meta.next_token);
+        res.data?.length > 0 && this.likedTweets.push(...res.data);
+        if (res.meta.next_token) this.getLikedTweets(res.meta.next_token);
         else !this.retweetsAlreadyLoaded && this.getRetweetedTweets();
       }).bind(this),
       error: ((_) => {
@@ -88,7 +84,7 @@ export class TabsPage implements OnInit {
           }
         })
 
-        if (res.data?.length === 100 && res.meta.next_token) this.getRetweetedTweets(res.meta.next_token);
+        if (res.meta.next_token) this.getRetweetedTweets(res.meta.next_token);
         else this.eventsBroadcaster.newAuthEvent({ success: true, type: "firstLogin", likedTweets: this.likedTweets, userInfo: this.userInfo, retweets: this.retweets });
       }).bind(this),
       error: ((_) => {
