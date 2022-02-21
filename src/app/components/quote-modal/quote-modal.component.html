@@ -1,6 +1,9 @@
-<div class="d-flex flex-column justify-content-center align-items-end p-2 h-100">
-  <ion-item class="br-4px mt-5 tweet-box-container w-100">
-    <ion-textarea class="w-100 h-100" [(ngModel)]="tweetContent" rows="12" placeholder="Twitta la tua risposta" maxlength="280" minlength="{{ replyType === 'retweet' ? '0' : '1' }}">
+<div class="d-flex flex-column justify-content-start align-items-end p-2 h-100">
+  <span class="w-100 d-flex justify-content-start align-items-center">
+    <h1 class="white">Rispondi</h1>
+  </span>
+  <ion-item class="br-4px tweet-box-container w-100">
+    <ion-textarea class="w-100" [(ngModel)]="tweetContent" rows="12" placeholder="Twitta la tua risposta" maxlength="280" minlength="{{ replyType === 'retweet' ? '0' : '1' }}">
     </ion-textarea>
   </ion-item>
   <div class="d-flex justify-content-center align-items-center">

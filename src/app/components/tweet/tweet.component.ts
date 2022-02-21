@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { IonRouterOutlet, ModalController, PopoverController } from '@ionic/angular';
 import { Observable } from 'rxjs';
 import { EventsBroadcasterService } from 'src/app/services/events-broadcaster.service';
 import { TwitterService } from 'src/app/services/twitter.service';
@@ -24,8 +24,12 @@ export class TweetComponent implements OnInit {
   actualTweet: Tweet;
   tweetEventsObservable: Observable<TweetEvent>;
   
-  constructor(private modalController: ModalController, private popoverController: PopoverController, private eventsBroadcaster: EventsBroadcasterService) { 
-  }
+  constructor(
+    private modalController: ModalController, 
+    private popoverController: PopoverController, 
+    private eventsBroadcaster: EventsBroadcasterService,
+    private routerOutlet: IonRouterOutlet
+    ) {}
 
   ngOnInit() {
     this.tweetEventsObservable = this.eventsBroadcaster.tweetEventsObservable;
@@ -35,9 +39,7 @@ export class TweetComponent implements OnInit {
         if (type === "like" || type === "unlike") this.publicMetrics.like_count += this.liked ? -1 : 1;
         if (type === "retweet" || type === "unretweet") this.toggleRetweet();
         if (type === "reply") this.publicMetrics.reply_count++;
-        if (type === "delete" && done && tweetId === this.actualTweet.id) {
-          this.toBeDeleted = true;
-        }
+        if (type === "delete" && done && tweetId === this.actualTweet.id) this.toBeDeleted = true;
       }
     })
 
@@ -83,7 +85,9 @@ export class TweetComponent implements OnInit {
       else {
         const modal = await this.modalController.create({
           component: QuoteModalComponent,
-          componentProps: { tweetId: this.actualTweet.id, userId: this.userId, replyType: "retweet" }
+          componentProps: { tweetId: this.actualTweet.id, userId: this.userId, replyType: "retweet" },
+          swipeToClose: true,
+          presentingElement: this.routerOutlet.parentOutlet.nativeEl
         })
         await modal.present();
         const { data } = await modal.onWillDismiss();
@@ -94,7 +98,9 @@ export class TweetComponent implements OnInit {
     if (type === "reply") {
       const modal = await this.modalController.create({
         component: QuoteModalComponent,
-        componentProps: { tweetId: this.actualTweet.id, userId: this.userId, replyType: "reply" }
+        componentProps: { tweetId: this.actualTweet.id, userId: this.userId, replyType: "reply" },
+        swipeToClose: true,
+        presentingElement: this.routerOutlet.parentOutlet.nativeEl
       });
       await modal.present();
       const { data } = await modal.onWillDismiss();
