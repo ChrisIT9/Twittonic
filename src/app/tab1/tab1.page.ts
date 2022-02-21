@@ -34,8 +34,7 @@ export class Tab1Page implements OnInit {
     private twitterService: TwitterService,
     private toastController: ToastController,
     private popoverController: PopoverController
-    ) {
-  }
+    ) {}
   
   ngOnInit(): void {
     this.userInfoLoading = true;
