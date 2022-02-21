@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { LoadingController, ToastController } from '@ionic/angular';
+import { LoadingController, ToastController, ViewWillEnter } from '@ionic/angular';
 import { getExpandedTweets } from 'src/utils/Misc';
 import { EventsBroadcasterService } from '../services/events-broadcaster.service';
 import { TwitterService } from '../services/twitter.service';
@@ -13,8 +13,7 @@ import { User } from '../typings/TwitterUsers';
   templateUrl: 'tab2.page.html',
   styleUrls: ['tab2.page.scss']
 })
-export class Tab2Page implements OnInit {
-  topics = ["xqcow", "twitch", "nopixel", "langbuddha", "sykkuno", "pokelawls", "jerma", "hasanabi"];
+export class Tab2Page implements OnInit, ViewWillEnter {
   tweets: ExpandedTweet[] = [];
   userInfo: User | undefined;
   likedTweets: Partial<Tweet>[] = [];
@@ -43,14 +42,17 @@ export class Tab2Page implements OnInit {
     private toastController: ToastController
   ) {
     this.eventsBroadcaster.authEventsObservable.subscribe(({ type, success, likedTweets, userInfo, retweets }) => {
-      if (type === "firstLogin" && success && likedTweets && userInfo && retweets) {
+      if ((type === "firstLogin" || type === "requestResponse") && success && likedTweets && userInfo && retweets) {
         this.likedTweets = likedTweets;
         this.retweets = retweets;
         this.userInfo = userInfo;
         this.ready = true;
-        console.log("we back");
       }
     })
+  }
+
+  ionViewWillEnter(): void {
+    if (!this.ready) this.eventsBroadcaster.newAuthEvent({ type: "request" });
   }
 
   ngOnInit() {
@@ -113,10 +115,10 @@ export class Tab2Page implements OnInit {
         const expandedTweets = await getExpandedTweets(res, this.twitterService);
         if (expandedTweets) this.tweets.push(...expandedTweets.filter(item => item));
         else this.empty = true;
-        await this.loadingBox.dismiss();
         this.alreadySearching = false;
         this.updateModel = true;
         this.searchInProgress = false;
+        await this.loadingBox.dismiss();
       }).bind(this),
       error: (async (_: any) => {
         await this.loadingBox.dismiss();
@@ -187,7 +189,6 @@ export class Tab2Page implements OnInit {
   changeNumberOfResults(event: any) {
     this.shouldRefresh = true;
     if (this.isHashtag) {
-      this.tweets.splice(0);
       this.router.navigate([], { relativeTo: this.activatedRoute, queryParams: { 
         search: null, 
         hashtag: this.query, 
@@ -197,7 +198,6 @@ export class Tab2Page implements OnInit {
       }, queryParamsHandling: "merge" })
     } 
     else {
-      this.tweets.splice(0);
       this.router.navigate([], { relativeTo: this.activatedRoute, queryParams: { 
         search: this.query, 
         hashtag: null, 

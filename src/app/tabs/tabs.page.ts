@@ -135,6 +135,9 @@ export class TabsPage implements OnInit {
       if ((type === "login" || type === "session" || type === "firstLogin") && success) {
         this.isLoggedIn = true;
       }
+      if (type === "request" && this.likedTweets && this.retweets && this.userInfo) {
+        this.eventsBroadcaster.newAuthEvent({ type: "requestResponse", success: true, likedTweets: this.likedTweets, retweets: this.retweets, userInfo: this.userInfo });
+      }
       if (type === "logout" || (type === "session" && !success)) {
         this.isLoggedIn = false;
         this.userId = undefined;

@@ -4,7 +4,9 @@
       <a href="https://www.twitter.com/{{tweet.username}}" target="_blank" class="clickable d-flex justify-content-start align-items-center">
         <img class="br-100 mx-2" [src]="tweet.profile_image_url">
         <div>
-          <b class="text-break d-flex justify-content-start align-items-center">{{ tweet.name | trimWord }} <ion-icon *ngIf="tweet.verified" name="checkmark-circle" class="mx-1"></ion-icon> </b>
+          <b class="text-break d-flex justify-content-start align-items-center username-root">
+            <span [title]="tweet.name"> {{ tweet.name | trimWord }} </span> <ion-icon *ngIf="tweet.verified" name="checkmark-circle" class="mx-1"></ion-icon>
+          </b>
           <ion-card-subtitle class="w-100 my-1 text-break">
             @{{ tweet.username }}
           </ion-card-subtitle>
@@ -25,7 +27,10 @@
           <a class="d-flex clickable justify-content-start align-items-center my-2" href="https://www.twitter.com/{{tweet.quotedUser.username}}" target="_blank">
             <img [src]="tweet.quotedUser.profile_image_url" class="br-100">
             <div class="mx-2 d-flex flex-column justify-content-between align-items-start">
-              <span class="d-flex justify-content-center align-items-center text-break"> {{ tweet.quotedUser.name | trimWord }} <ion-icon name="checkmark-circle" *ngIf="tweet.quotedUser.verified" class="mx-1"></ion-icon> </span>
+              <b class="d-flex justify-content-center align-items-center text-break"> 
+                <span [title]="tweet.quotedUser.name"> {{ tweet.quotedUser.name | trimWord }} </span>
+                <ion-icon name="checkmark-circle" *ngIf="tweet.quotedUser.verified" class="mx-1"></ion-icon> 
+              </b>
               <ion-card-subtitle class="text-break"> @{{ tweet.quotedUser.username }} </ion-card-subtitle>
             </div>
           </a>
